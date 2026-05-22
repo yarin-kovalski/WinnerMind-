@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Realistic 3D Tennis Court</title>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #b54224;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    .params {
+      position: fixed;
+      top: 22px;
+      right: 22px;
+      width: 220px;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(6, 17, 10, 0.68);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: #f8fbff;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      box-shadow: 0 14px 38px rgba(0, 0, 0, 0.22);
+      backdrop-filter: blur(8px);
+      pointer-events: none;
+    }
+
+    .params h1 {
+      margin: 0 0 9px;
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 5px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 12px;
+    }
+
+    .row span {
+      color: #b9dac9;
+    }
+
+    .row strong {
+      color: #fff;
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body>
+  <aside class="params">
+    <h1>AceMind Shot</h1>
+    <div class="row"><span>Power</span><strong id="power">92%</strong></div>
+    <div class="row"><span>Launch</span><strong id="launch">18 deg</strong></div>
+    <div class="row"><span>Arc height</span><strong id="arc">2.35m</strong></div>
+    <div class="row"><span>Topspin</span><strong id="spin">0.74</strong></div>
+    <div class="row"><span>Target</span><strong id="target">Wide</strong></div>
+    <div class="row"><span>Fitness</span><strong id="fitness">968</strong></div>
+  </aside>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.165.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.165.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import * as THREE from "three";
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xb54224);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.18;
+    document.body.appendChild(renderer.domElement);
+
+    let shotParams = {
+      power: 0.92,
+      launchAngleDeg: 18,
+      arcHeight: 2.35,
+      topspin: 0.74,
+      targetX: -3.25,
+      targetZ: -7.65,
+      fitness: 968
+    };
+
+    async function loadTrainedShot() {
+      try {
+        const response = await fetch("best_shot.json", { cache: "no-store" });
+        if (!response.ok) return;
+        const trained = await response.json();
+        shotParams = {
+          ...shotParams,
+          power: Number(trained.power ?? shotParams.power),
+          launchAngleDeg: Number(trained.launchAngleDeg ?? shotParams.launchAngleDeg),
+          arcHeight: Number(trained.arcHeight ?? shotParams.arcHeight),
+          topspin: Number(trained.topspin ?? shotParams.topspin),
+          targetX: Number(trained.targetX ?? shotParams.targetX),
+          targetZ: Number(trained.targetZ ?? shotParams.targetZ),
+          fitness: Number(trained.fitness ?? shotParams.fitness)
+        };
+      } catch {
+        // Keep preview defaults when opened before training or without a local server.
+      }
+    }
+
+    await loadTrainedShot();
+
+    document.getElementById("power").textContent = `${Math.round(shotParams.power * 100)}%`;
+    document.getElementById("launch").textContent = `${shotParams.launchAngleDeg} deg`;
+    document.getElementById("arc").textContent = `${shotParams.arcHeight.toFixed(2)}m`;
+    document.getElementById("spin").textContent = shotParams.topspin.toFixed(2);
+    document.getElementById("target").textContent = shotParams.targetX < 0 ? "Wide left" : "Wide right";
+    document.getElementById("fitness").textContent = String(shotParams.fitness);
+
+    const camera = new THREE.PerspectiveCamera(26, window.innerWidth / window.innerHeight, 0.1, 140);
+    camera.position.set(0, 31.5, 24.5);
+    camera.lookAt(0, 0, -1.4);
+
+    const ambient = new THREE.HemisphereLight(0xffffff, 0xa63a20, 2.0);
+    scene.add(ambient);
+
+    const sun = new THREE.DirectionalLight(0xffffff, 4.4);
+    sun.position.set(-9, 22, 12);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(4096, 4096);
+    sun.shadow.camera.near = 1;
+    sun.shadow.camera.far = 80;
+    sun.shadow.camera.left = -22;
+    sun.shadow.camera.right = 22;
+    sun.shadow.camera.top = 30;
+    sun.shadow.camera.bottom = -30;
+    scene.add(sun);
+
+    function courtTexture(base, speckle, repeatX, repeatY) {
+      const canvas = document.createElement("canvas");
+      canvas.width = 1024;
+      canvas.height = 1024;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = base;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < 13000; i++) {
+        const alpha = Math.random() * 0.07;
+        ctx.fillStyle = `rgba(${speckle[0]}, ${speckle[1]}, ${speckle[2]}, ${alpha})`;
+        const size = 1 + Math.random() * 2.2;
+        ctx.fillRect(Math.random() * 1024, Math.random() * 1024, size, size);
+      }
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(repeatX, repeatY);
+      texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      return texture;
+    }
+
+    const outerMat = new THREE.MeshStandardMaterial({
+      map: courtTexture("#b54224", [245, 156, 112], 9, 7),
+      roughness: 0.62,
+      metalness: 0.0
+    });
+
+    const greenMat = new THREE.MeshStandardMaterial({
+      map: courtTexture("#1f6738", [130, 190, 145], 5, 9),
+      roughness: 0.64,
+      metalness: 0.0
+    });
+
+    const whiteMat = new THREE.MeshStandardMaterial({
+      color: 0xf7fbff,
+      roughness: 0.28,
+      metalness: 0.0
+    });
+
+    const blackMat = new THREE.MeshStandardMaterial({
+      color: 0x050605,
+      roughness: 0.46,
+      metalness: 0.05
+    });
+
+    const outer = new THREE.Mesh(new THREE.PlaneGeometry(54, 40), outerMat);
+    outer.rotation.x = -Math.PI / 2;
+    outer.receiveShadow = true;
+    scene.add(outer);
+
+    // Official doubles court dimensions in meters.
+    const COURT_LENGTH = 23.77;
+    const DOUBLES_WIDTH = 10.97;
+    const SINGLES_WIDTH = 8.23;
+    const SERVICE_LINE_FROM_NET = 6.40;
+    const LINE_WIDTH = 0.11;
+
+    const greenCourt = new THREE.Mesh(new THREE.PlaneGeometry(DOUBLES_WIDTH, COURT_LENGTH), greenMat);
+    greenCourt.rotation.x = -Math.PI / 2;
+    greenCourt.position.y = 0.012;
+    greenCourt.receiveShadow = true;
+    scene.add(greenCourt);
+
+    function addLine(width, length, x, z, vertical = false) {
+      const geo = vertical
+        ? new THREE.BoxGeometry(width, 0.032, length)
+        : new THREE.BoxGeometry(length, 0.032, width);
+      const line = new THREE.Mesh(geo, whiteMat);
+      line.position.set(x, 0.05, z);
+      line.receiveShadow = true;
+      scene.add(line);
+      return line;
+    }
+
+    // Outer doubles boundaries.
+    addLine(LINE_WIDTH, DOUBLES_WIDTH, 0, COURT_LENGTH / 2);
+    addLine(LINE_WIDTH, DOUBLES_WIDTH, 0, -COURT_LENGTH / 2);
+    addLine(LINE_WIDTH, COURT_LENGTH, -DOUBLES_WIDTH / 2, 0, true);
+    addLine(LINE_WIDTH, COURT_LENGTH, DOUBLES_WIDTH / 2, 0, true);
+
+    // Singles sidelines.
+    addLine(LINE_WIDTH, COURT_LENGTH, -SINGLES_WIDTH / 2, 0, true);
+    addLine(LINE_WIDTH, COURT_LENGTH, SINGLES_WIDTH / 2, 0, true);
+
+    // Service boxes and center service line.
+    addLine(LINE_WIDTH, SINGLES_WIDTH, 0, SERVICE_LINE_FROM_NET);
+    addLine(LINE_WIDTH, SINGLES_WIDTH, 0, -SERVICE_LINE_FROM_NET);
+    addLine(LINE_WIDTH, SERVICE_LINE_FROM_NET * 2, 0, 0, true);
+
+    // Center marks on baselines.
+    addLine(LINE_WIDTH, 0.55, 0, COURT_LENGTH / 2 - 0.27, true);
+    addLine(LINE_WIDTH, 0.55, 0, -COURT_LENGTH / 2 + 0.27, true);
+
+    // Realistic black net with mesh and a thin white top band.
+    const netGroup = new THREE.Group();
+    const netWidth = 12.15;
+    const netHeight = 1.02;
+
+    const leftPost = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 1.33, 24), blackMat);
+    leftPost.position.set(-netWidth / 2, 0.665, 0);
+    leftPost.castShadow = true;
+    netGroup.add(leftPost);
+
+    const rightPost = leftPost.clone();
+    rightPost.position.x = netWidth / 2;
+    netGroup.add(rightPost);
+
+    const topBand = new THREE.Mesh(new THREE.BoxGeometry(netWidth, 0.075, 0.05), whiteMat);
+    topBand.position.set(0, netHeight, 0);
+    topBand.castShadow = true;
+    netGroup.add(topBand);
+
+    const bottomCord = new THREE.Mesh(new THREE.BoxGeometry(netWidth, 0.025, 0.025), blackMat);
+    bottomCord.position.set(0, 0.18, 0);
+    netGroup.add(bottomCord);
+
+    const meshMat = new THREE.MeshBasicMaterial({
+      color: 0x071007,
+      transparent: true,
+      opacity: 0.82
+    });
+
+    for (let x = -netWidth / 2 + 0.18; x <= netWidth / 2 - 0.18; x += 0.18) {
+      const cord = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.78, 0.008), meshMat);
+      cord.position.set(x, 0.58, 0);
+      netGroup.add(cord);
+    }
+
+    for (let y = 0.23; y <= 0.92; y += 0.115) {
+      const cord = new THREE.Mesh(new THREE.BoxGeometry(netWidth - 0.25, 0.008, 0.008), meshMat);
+      cord.position.set(0, y, 0);
+      netGroup.add(cord);
+    }
+
+    scene.add(netGroup);
+
+    function makeBallTexture() {
+      const canvas = document.createElement("canvas");
+      canvas.width = 512;
+      canvas.height = 256;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#dfff24";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < 7000; i++) {
+        ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.16})`;
+        ctx.fillRect(Math.random() * 512, Math.random() * 256, 1, 1);
+      }
+      ctx.strokeStyle = "rgba(255,255,255,0.9)";
+      ctx.lineWidth = 9;
+      ctx.beginPath();
+      ctx.arc(105, 128, 88, -1.25, 1.25);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(407, 128, 88, Math.PI - 1.25, Math.PI + 1.25);
+      ctx.stroke();
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      return texture;
+    }
+
+    const ball = new THREE.Mesh(
+      new THREE.SphereGeometry(0.19, 64, 40),
+      new THREE.MeshStandardMaterial({
+        map: makeBallTexture(),
+        roughness: 0.86,
+        emissive: 0x748000,
+        emissiveIntensity: 0.08
+      })
+    );
+    ball.castShadow = true;
+    scene.add(ball);
+
+    const ballShadow = new THREE.Mesh(
+      new THREE.CircleGeometry(0.34, 40),
+      new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.26, depthWrite: false })
+    );
+    ballShadow.rotation.x = -Math.PI / 2;
+    ballShadow.position.y = 0.065;
+    scene.add(ballShadow);
+
+    const trail = [];
+    for (let i = 0; i < 30; i++) {
+      const dot = new THREE.Mesh(
+        new THREE.SphereGeometry(0.035 + i * 0.001, 16, 10),
+        new THREE.MeshBasicMaterial({ color: 0xe4ff2f, transparent: true, opacity: 0.34 })
+      );
+      dot.visible = false;
+      scene.add(dot);
+      trail.push(dot);
+    }
+
+    function shotPosition(t) {
+      const start = new THREE.Vector3(2.7, 0.32, 8.9);
+      const preBounce = new THREE.Vector3(0.82, 0.08, 3.2);
+      const end = new THREE.Vector3(shotParams.targetX, 0.08, shotParams.targetZ);
+      const firstArcHeight = shotParams.arcHeight + shotParams.power * 0.45 + shotParams.launchAngleDeg / 55;
+      const secondArcHeight = 0.7 + (1 - shotParams.topspin) * 0.7;
+
+      if (t < 0.58) {
+        const u = t / 0.58;
+        const arc = Math.sin(u * Math.PI) * firstArcHeight;
+        return new THREE.Vector3(
+          THREE.MathUtils.lerp(start.x, preBounce.x, u),
+          0.22 + arc,
+          THREE.MathUtils.lerp(start.z, preBounce.z, u)
+        );
+      }
+
+      const u = (t - 0.58) / 0.42;
+      const bounce = Math.sin(u * Math.PI) * secondArcHeight;
+      return new THREE.Vector3(
+        THREE.MathUtils.lerp(preBounce.x, end.x, u),
+        0.17 + bounce,
+        THREE.MathUtils.lerp(preBounce.z, end.z, u)
+      );
+    }
+
+    let startedAt = performance.now();
+    let last = startedAt;
+    let cursor = 0;
+
+    function animate(now) {
+      requestAnimationFrame(animate);
+      const dt = (now - last) / 1000;
+      last = now;
+
+      const cycleDuration = 4200 - shotParams.power * 1150;
+      const cycle = ((now - startedAt) % cycleDuration) / cycleDuration;
+      const t = Math.min(1, cycle / 0.92);
+      const pos = shotPosition(t);
+      ball.position.copy(pos);
+      ball.rotation.x += dt * (10 + shotParams.power * 12);
+      ball.rotation.z += dt * (8 + shotParams.topspin * 18);
+
+      ballShadow.position.x = pos.x;
+      ballShadow.position.z = pos.z;
+      const height = Math.max(0.12, pos.y);
+      const shadowScale = THREE.MathUtils.clamp(1.25 - height * 0.18, 0.55, 1.1);
+      ballShadow.scale.set(shadowScale, shadowScale, shadowScale);
+      ballShadow.material.opacity = THREE.MathUtils.clamp(0.32 - height * 0.045, 0.08, 0.28);
+
+      if (Math.floor(now / 35) % 2 === 0) {
+        const dot = trail[cursor % trail.length];
+        dot.position.copy(pos);
+        dot.visible = true;
+        cursor++;
+      }
+
+      for (let i = 0; i < trail.length; i++) {
+        const age = (cursor - i + trail.length) % trail.length;
+        trail[i].material.opacity = Math.max(0.0, 0.34 - age * 0.012);
+        trail[i].scale.setScalar(Math.max(0.35, 1 - age * 0.018));
+      }
+
+      // Tiny cinematic follow without changing the reference-like composition.
+      const follow = Math.sin(t * Math.PI) * 0.18;
+      camera.position.x = follow;
+      camera.lookAt(0, 0, -1.4);
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    animate(performance.now());
+  </script>
+</body>
+</html>

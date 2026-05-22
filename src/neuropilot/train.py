@@ -1,15 +1,20 @@
-"""Training entry point for NeuroPilot."""
+"""Training entry point for AceMind Tennis Shot Strategy AI."""
 
 from __future__ import annotations
 
+from neuropilot.genetic_algorithm import train
+
 
 def main() -> None:
-    """Run genetic training.
-
-    The full training loop will be implemented after the lander simulation and
-    single-model fitness evaluation are verified.
-    """
-    print("NeuroPilot training scaffold is ready.")
+    best = train()
+    best_shot = best.best_result
+    print(f"\nTraining complete. Best average fitness: {best.fitness:.2f}")
+    print(f"Best visual shot fitness: {best_shot.fitness:.2f}")
+    print("Saved weights: models/acemind_best.weights.h5")
+    print("Saved history: reports/training_history.csv")
+    print("Saved chart: reports/fitness.png")
+    print("Saved 3D animation data: reports/best_shot.json")
+    print("Open visualization: http://localhost:8000/reports/tennis_court_realistic_3d.html")
 
 
 if __name__ == "__main__":

@@ -1,26 +1,36 @@
-"""Shared configuration for the NeuroPilot training project."""
+"""Shared configuration for AceMind Tennis Shot Strategy AI."""
 
 from dataclasses import dataclass
+from pathlib import Path
+
+
+ROOT_DIR = Path(__file__).resolve().parents[2]
+MODELS_DIR = ROOT_DIR / "models"
+REPORTS_DIR = ROOT_DIR / "reports"
 
 
 @dataclass(frozen=True)
-class EnvironmentConfig:
-    width: float = 100.0
-    height: float = 100.0
-    landing_pad_x: float = 50.0
-    gravity: float = -0.08
-    max_steps: int = 600
-    initial_fuel: float = 100.0
+class CourtConfig:
+    court_length: float = 23.77
+    doubles_width: float = 10.97
+    singles_width: float = 8.23
+    net_height: float = 0.914
+    contact_height: float = 0.85
+    min_power: float = 0.45
+    max_power: float = 1.0
+    min_launch_angle: float = 8.0
+    max_launch_angle: float = 28.0
 
 
 @dataclass(frozen=True)
 class GeneticConfig:
-    population_size: int = 40
-    elite_count: int = 6
-    generations: int = 50
+    population_size: int = 44
+    elite_count: int = 7
+    generations: int = 40
     mutation_rate: float = 0.08
-    mutation_strength: float = 0.15
+    mutation_strength: float = 0.16
+    seed: int = 7
 
 
-ENV_CONFIG = EnvironmentConfig()
+COURT_CONFIG = CourtConfig()
 GENETIC_CONFIG = GeneticConfig()

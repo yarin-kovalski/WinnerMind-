@@ -1,0 +1,15 @@
+{
+  "strategy": "Aggressive Wide",
+  "power": 0.92,
+  "launchAngleDeg": 18,
+  "arcHeight": 2.35,
+  "topspin": 0.74,
+  "targetX": -3.25,
+  "targetZ": -7.65,
+  "fitness": 968,
+  "clearedNet": true,
+  "inCourt": true,
+  "targetError": 0.31,
+  "opponentDistance": 6.7,
+  "trajectory": []
+}

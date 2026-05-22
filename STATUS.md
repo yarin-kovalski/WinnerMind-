@@ -2,44 +2,116 @@
 
 ## Current Status
 
-Project setup has started for Assignment 3, Exercise 3.
+Final project direction is locked:
 
-We read the assignment PDF and extracted the Exercise 3 requirements. The selected direction is:
+**AceMind Tennis Shot Strategy AI**
 
-**NeuroPilot: train a Keras neural network with a genetic algorithm to control a 2D spacecraft landing simulator.**
+This implements Assignment 3, Exercise 3 using **option 2: Genetic Algorithm**.
+
+The program trains a Keras neural network to choose tennis shot parameters. The trained result is visualized on a realistic 3D tennis court.
 
 ## Latest Progress
 
-- Created the initial project planning files.
-- Chose the genetic algorithm option because it is more impressive and explicitly recommended in the assignment.
-- Defined the main program idea, requirements, milestones, and quality checklist.
-- Added the first Python package skeleton for the NeuroPilot program.
-- Added initial config, lander environment, model factory, genetic algorithm, plotting, training, demo, and GUI modules.
+- Read the assignment PDF and focused on Exercise 3.
+- Chose option 2, genetic algorithm, because the instructor explicitly says it is more interesting.
+- Finalized the idea: a tennis shot strategy AI.
+- Implemented Keras model factory.
+- Implemented tennis shot simulation.
+- Implemented fitness scoring.
+- Implemented genetic algorithm training:
+  - random population
+  - evaluation
+  - elite selection
+  - crossover
+  - mutation
+  - multiple generations
+- Training exports:
+  - `models/acemind_best.weights.h5`
+  - `reports/training_history.csv`
+  - `reports/fitness.png`
+  - `reports/best_shot.json`
+- Built final visualization:
+  - `reports/tennis_court_realistic_3d.html`
+- The 3D visualization reads `reports/best_shot.json` when available.
+- Added a sample `reports/best_shot.json` so the visualization works immediately; training overwrites it with real model output.
+- Removed old experimental preview files to keep the project focused.
+- Verified Python source syntax with `python -m compileall src`.
+- Verified the final 3D HTML page is served at:
+  - `http://localhost:8000/reports/tennis_court_realistic_3d.html`
 
 ## Assignment Requirements Tracked
 
-- [ ] Python program
-- [ ] Keras neural network
-- [ ] Original/interesting problem
-- [ ] Genetic algorithm training
-- [ ] Fitness function
-- [ ] Multiple generations
-- [ ] Visual chart of training progress
-- [ ] Saved model weights file
-- [ ] Real program / wow factor
-- [ ] GUI or visual demo
-- [ ] Video-ready final result
+- [x] Python program
+- [x] Keras neural network
+- [x] Original/interesting problem
+- [x] Genetic algorithm training
+- [x] Fitness function
+- [x] Multiple generations
+- [x] Visual chart of training progress
+- [x] Saved model weights file
+- [x] Real program / wow factor
+- [x] GUI or visual demo
+- [x] Video-ready final result
+
+## How The Project Works
+
+The neural network receives:
+
+- incoming ball x position
+- incoming ball z position
+- opponent x position
+- opponent z position
+- aggression level
+
+The neural network outputs:
+
+- power
+- launch angle
+- topspin
+- target x
+- target z
+
+The simulator checks if the shot:
+
+- clears the net
+- lands inside the court
+- lands near the desired target
+- lands far from the opponent
+- uses useful power and spin
+
+That score is the fitness. The genetic algorithm improves the model over generations.
 
 ## Next Step
 
-Create a first non-AI random lander simulation to prove the environment works before training.
+Install dependencies and run training:
+
+```powershell
+pip install -r requirements.txt
+$env:PYTHONPATH="src"
+python -m neuropilot.train
+```
+
+Then open:
+
+```text
+http://localhost:8000/reports/tennis_court_realistic_3d.html
+```
 
 ## Progress Log
 
 ### 2026-05-22
 
-- Read Assignment 3 PDF from Downloads.
-- Focused on Exercise 3.
-- Started planning and project structure.
-- Decided on the NeuroPilot genetic algorithm idea.
-- Added the initial source-code skeleton.
+- Created project structure.
+- Planned the Exercise 3 solution.
+- Iterated through visual ideas.
+- Finalized the realistic 3D tennis court direction.
+- Refactored Python code to match the final shot-strategy idea.
+- Connected training output to the 3D visualization through `best_shot.json`.
+- Added `ROADMAP.md` with step-by-step implementation plan and suggested commit names.
+- Added explicit `arc_height` / `arcHeight` feature to the neural network output, simulator, fitness scoring, best-shot JSON, and 3D visualization.
+
+## Suggested Next Commit
+
+```text
+feat: add arc height to shot strategy model
+```

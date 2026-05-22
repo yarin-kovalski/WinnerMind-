@@ -3,4 +3,4 @@ matplotlib
 tensorflow
 keras
 gradio
-pandas
+pillow

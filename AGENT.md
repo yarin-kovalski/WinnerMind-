@@ -4,101 +4,72 @@
 
 This project implements Exercise 3 from Assignment 3: a Python program that trains a neural network using Keras.
 
-Our chosen idea is **NeuroPilot: a genetic-algorithm-trained neural network that learns to land a small 2D spacecraft safely**.
+Final idea: **AceMind Tennis Shot Strategy AI**.
 
-The program will evolve many randomly initialized Keras neural networks. Each network controls a simulated lander by choosing actions such as thrust and steering. A fitness function rewards landers that:
+AceMind trains a Keras neural network with a genetic algorithm. The model receives a tennis game situation and outputs shot parameters:
 
-- land near the target pad
-- reduce vertical and horizontal speed before touchdown
-- stay upright
-- use fuel efficiently
-- avoid crashing or flying away
+- shot power
+- launch angle
+- topspin
+- target x position
+- target z position
 
-This follows the assignment's second training option: **Genetic Algorithm**.
+A tennis simulation scores each shot. The best neural networks survive, breed, mutate, and improve over generations.
 
-## Why This Idea Fits The Assignment
+## Why This Fits The Assignment
 
+- Uses Python.
 - Uses a Keras neural network.
-- Trains without a labeled dataset by evolving weights over generations.
-- Has a clear fitness function.
-- Shows a visual chart of fitness improvement during training.
-- Saves the trained model weights to a file after training.
-- Can be demonstrated as a real interactive program with a "wow" factor.
-- Has natural video material for the assignment competition: watch the lander improve over generations and then let the trained pilot fly.
+- Uses option 2: genetic algorithm.
+- Does not require a dataset because training happens through simulation and fitness scoring.
+- Shows training progress with a fitness chart.
+- Saves trained model weights.
+- Exports the best shot parameters to `reports/best_shot.json`.
+- Shows the trained result in a realistic 3D tennis court animation.
 
-## Target User Experience
+## How The Algorithm Knows A Shot Is Good
 
-The final project should feel like a small AI lab:
+The model is scored with a fitness function.
 
-- Run training and watch a live fitness chart.
-- See the best lander from each generation in a visual simulation.
-- Save the best model weights.
-- Load the trained model and run a demo flight.
-- Optionally open a Gradio GUI that lets a user train, test, and watch the neural pilot.
+Reward:
 
-## Core Requirements From The Assignment
+- ball crosses above the net
+- ball lands inside the opponent side of the court
+- ball lands close to the desired target
+- ball lands far from the opponent
+- shot has useful power and spin
 
-- Create a Python program that trains a neural network using Keras.
-- Choose an interesting original problem.
-- Use either supervised learning or a genetic algorithm.
-- If using a genetic algorithm:
-  - start with randomly weighted neural networks
-  - score each network using a fitness function
-  - select the best networks
-  - breed and mutate them over multiple generations
-  - show how fitness improves during training
-- Save the model weights into a file when training finishes.
-- Create a real program with value or a strong "wow" factor.
-- GUI is allowed and recommended; Gradio is a good option.
-- Record a high quality video showing Exercise 3 running properly.
+Penalty:
 
-## Proposed Project Structure
+- ball hits or fails to clear the net
+- ball lands out
+- ball lands far from target
+- shot is too weak or unrealistic
+- target is easy for the opponent to reach
 
-```text
-.
-├── AGENT.md
-├── IMPLEMENTING.md
-├── STATUS.md
-├── requirements.txt
-├── .gitignore
-├── data/
-│   └── .gitkeep
-├── models/
-│   └── .gitkeep
-├── reports/
-│   └── .gitkeep
-├── src/
-│   └── neuropilot/
-│       ├── __init__.py
-│       ├── config.py
-│       ├── lander_env.py
-│       ├── model.py
-│       ├── genetic_algorithm.py
-│       ├── train.py
-│       ├── demo.py
-│       ├── gui.py
-│       └── plotting.py
-└── tests/
-    └── .gitkeep
-```
+## Final User Experience
+
+1. Run training.
+2. Watch generation fitness improve.
+3. Save the best model weights.
+4. Save `reports/best_shot.json`.
+5. Open the 3D tennis court animation.
+6. The animation reads the trained parameters and shows the ball moving according to them.
 
 ## Development Rules
 
-- Work in baby steps, as requested by the assignment.
-- Update `STATUS.md` after every meaningful progress step.
-- Keep commits meaningful once a Git repository is initialized.
-- Review diffs before each commit.
-- Do not commit virtual environments, cache folders, generated videos, or very large model artifacts unless needed.
-- Keep the project runnable from a clean checkout using `requirements.txt`.
+- Work in baby steps.
+- Update `STATUS.md` after meaningful progress.
+- Keep commits meaningful once Git is initialized.
+- Do not commit `.venv`, caches, generated videos, or other large unneeded files.
+- Keep the project runnable from `requirements.txt`.
 
 ## Definition Of Done
 
-The project is done when:
-
-- training runs successfully for multiple generations
-- the chart shows best and average fitness improving
-- trained Keras weights are saved under `models/`
-- a demo can load the saved weights and run the lander
-- a GUI or clear visual demo exists
-- instructions explain how to run everything
-- the final video can show the full story clearly
+- `python -m neuropilot.train` trains multiple generations.
+- `models/acemind_best.weights.h5` is saved.
+- `reports/training_history.csv` is saved.
+- `reports/fitness.png` is saved.
+- `reports/best_shot.json` is saved.
+- `reports/tennis_court_realistic_3d.html` displays the trained shot parameters.
+- Final video shows training, chart, saved files, and 3D animation.

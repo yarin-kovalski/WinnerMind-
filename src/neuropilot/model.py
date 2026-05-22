@@ -1,4 +1,4 @@
-"""Keras model factory for the neural lander pilot."""
+"""Keras model factory for AceMind Tennis Shot Strategy AI."""
 
 from __future__ import annotations
 
@@ -7,13 +7,28 @@ from keras.layers import Dense, Input
 
 
 def build_pilot_model() -> Sequential:
-    """Create a small neural network that maps lander state to controls."""
-    model = Sequential(
+    """Map a game situation to shot parameters.
+
+    Inputs:
+    - incoming ball x
+    - incoming ball z
+    - opponent x
+    - opponent z
+    - strategy aggression
+
+    Outputs:
+    - power
+    - launch angle
+    - arc height
+    - topspin
+    - target x
+    - target z
+    """
+    return Sequential(
         [
-            Input(shape=(8,)),
+            Input(shape=(5,)),
             Dense(32, activation="relu"),
             Dense(32, activation="relu"),
-            Dense(2, activation="tanh"),
+            Dense(6, activation="sigmoid"),
         ]
     )
-    return model

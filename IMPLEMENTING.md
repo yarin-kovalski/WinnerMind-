@@ -1,143 +1,97 @@
 # IMPLEMENTING.md
 
-## Implementation Plan For Exercise 3
+## Final Project
 
-Goal: get a high grade by building a complete, original, demonstrable Keras neural-network project using a genetic algorithm.
+**AceMind Tennis Shot Strategy AI**
 
-## Chosen Concept
+We train a Keras neural network using a genetic algorithm. The neural network learns to choose tennis shot parameters for different tactical situations.
 
-**NeuroPilot**: evolve a neural network that controls a 2D spacecraft landing simulator.
-
-The neural network receives the lander's current state and outputs control decisions. The genetic algorithm improves the model weights over many generations.
-
-## Neural Network Design
+## Neural Network
 
 Input features:
 
-- horizontal position relative to landing pad
-- vertical position
-- horizontal velocity
-- vertical velocity
-- angle
-- angular velocity
-- remaining fuel
-- distance to landing pad
+- incoming ball x position
+- incoming ball z position
+- opponent x position
+- opponent z position
+- aggression level
 
 Outputs:
 
-- main thrust strength
-- left/right steering or rotation control
+- power
+- launch angle
+- topspin
+- target x position
+- target z position
 
-Initial architecture:
+## Training Method
 
-- Keras `Sequential` or functional model
-- Dense layer, 32 units, ReLU
-- Dense layer, 32 units, ReLU
-- Dense output layer, 2 units, `tanh` or `sigmoid` depending on action encoding
-
-## Genetic Algorithm
-
-Each individual is one Keras model's weights.
+We use the assignment's option 2: **Genetic Algorithm**.
 
 Training loop:
 
-1. Create a population of random neural networks.
-2. Run each network in the lander simulation.
-3. Score each network with a fitness function.
-4. Keep the top performers.
-5. Create children by combining parent weights.
-6. Mutate some child weights.
-7. Repeat for many generations.
-8. Save the best model weights.
+1. Create many random Keras neural networks.
+2. Each network predicts shot parameters.
+3. The simulator calculates the ball trajectory.
+4. The fitness function scores the shot.
+5. Keep the best networks.
+6. Mix parent weights with crossover.
+7. Mutate child weights.
+8. Repeat for multiple generations.
+9. Save the best model weights.
+10. Export the best shot to `reports/best_shot.json`.
 
 ## Fitness Function
 
-Reward:
+A shot is good if:
 
-- getting close to the landing pad
-- slow vertical speed near the ground
-- slow horizontal speed near the pad
-- upright angle
-- successful landing
-- fuel remaining
-- surviving longer without leaving bounds
+- it clears the net
+- it lands inside the opponent court
+- it lands near the desired target
+- it lands away from the opponent
+- it has useful speed and spin
 
-Penalty:
+A shot is bad if:
 
-- crashing
-- high-speed impact
-- drifting too far from the target
-- rotating too much
-- wasting fuel
-- leaving the simulation bounds
+- it does not clear the net
+- it lands out
+- it is far from the target
+- it lands near the opponent
+- it uses unrealistic launch/power
 
-The first version should be simple and stable. We can improve it after seeing training behavior.
+## Generated Files
 
-## Visual Progress
+Training outputs:
 
-Required by assignment:
+- `models/acemind_best.weights.h5`
+- `reports/training_history.csv`
+- `reports/fitness.png`
+- `reports/best_shot.json`
 
-- show how fitness improves over generations
+Visualization:
 
-Implementation:
+- `reports/tennis_court_realistic_3d.html`
 
-- save fitness history to `reports/training_history.csv`
-- generate a chart with best fitness and average fitness
-- update the chart during training or at least after every generation
-- optionally show a live matplotlib window
+## Final Video Plan
 
-## GUI / Wow Factor
+Show:
 
-Recommended final GUI:
+- Exercise 3 requirement: Keras neural network
+- option 2: genetic algorithm
+- explain no dataset is needed because simulation creates fitness scores
+- run training
+- show generation improvement
+- show `fitness.png`
+- show saved model weights
+- show `best_shot.json`
+- open the 3D tennis animation
+- explain that the ball movement uses the trained model parameters
 
-- Gradio app with buttons:
-  - Train
-  - Run Best Model
-  - Load Saved Model
-- Show:
-  - current generation
-  - best fitness
-  - fitness chart
-  - animated or step-by-step lander path
+## Two-Hour Finish Plan
 
-If Gradio animation is too slow, use matplotlib images/GIFs or a local visual demo script.
-
-## Baby-Step Milestones
-
-1. Create project structure and planning files.
-2. Implement lander physics environment without AI.
-3. Add a random controller demo to verify physics.
-4. Build the Keras model factory.
-5. Implement fitness scoring for one model.
-6. Implement genetic algorithm selection, crossover, and mutation.
-7. Train for a small number of generations and save history.
-8. Save and load best model weights.
-9. Add plotting for training progress.
-10. Add visual demo of the trained lander.
-11. Add Gradio GUI or polished CLI demo.
-12. Test from a clean run and prepare video instructions.
-
-## Quality Checklist For 100
-
-- The project clearly uses Keras.
-- The training method is clearly a genetic algorithm.
-- The fitness chart is visible and understandable.
-- The model weights are saved.
-- The demo loads the saved model and proves training worked.
-- The idea feels original compared to classic cat/dog/image examples.
-- The code is organized and readable.
-- The video shows the assignment requirements one by one.
-- The README explains setup, training, demo, and submission.
-- `STATUS.md` documents progress honestly.
-
-## Suggested Git Commit Plan
-
-- `chore: add exercise 3 project plan and structure`
-- `feat: implement lander simulation environment`
-- `feat: add keras neural pilot model`
-- `feat: evaluate neural pilot fitness`
-- `feat: train neural pilot with genetic algorithm`
-- `feat: save model weights and training chart`
-- `feat: add trained model demo`
-- `feat: add gui for training and demo`
-- `docs: add run instructions and video checklist`
+1. Install dependencies.
+2. Run training.
+3. Inspect `best_shot.json`.
+4. Open 3D animation.
+5. If motion looks bad, tune only the fitness/scaling values.
+6. Record video.
