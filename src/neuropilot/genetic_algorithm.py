@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from collections.abc import Callable
 import csv
 import json
 
@@ -83,6 +84,7 @@ def train(
     model_path: Path = MODELS_DIR / "winnermind_best.weights.h5",
     history_path: Path = REPORTS_DIR / "training_history.csv",
     best_shot_path: Path = REPORTS_DIR / "best_shot.json",
+    on_generation: Callable[[int, int, float, float], None] | None = None,
 ) -> EvaluatedIndividual:
     """Train shot strategy with a genetic algorithm and save artifacts."""
     rng = np.random.default_rng(config.seed)
@@ -116,6 +118,8 @@ def train(
         write_history(rows, history_path)
         save_fitness_chart(best_history, average_history, REPORTS_DIR / "fitness.png")
         write_best_shot(best.best_result, best_shot_path)
+        if on_generation is not None:
+            on_generation(generation + 1, config.generations, best.fitness, average)
 
         elites = evaluated[: config.elite_count]
         next_population = [clone_weights(item.weights) for item in elites]

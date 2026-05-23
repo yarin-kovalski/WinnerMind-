@@ -18,6 +18,18 @@
       display: block;
     }
 
+    .opponent-img {
+      position: fixed;
+      width: 148px;
+      height: auto;
+      z-index: 2;
+      pointer-events: none;
+      transform: translate(-50%, -88%);
+      transform-origin: 50% 88%;
+      filter: drop-shadow(18px 20px 12px rgba(0, 0, 0, 0.34));
+      will-change: left, top, transform;
+    }
+
     .params {
       position: fixed;
       top: 22px;
@@ -72,6 +84,7 @@
     <div class="row"><span>Target</span><strong id="target">Wide</strong></div>
     <div class="row"><span>Fitness</span><strong id="fitness">968</strong></div>
   </aside>
+  <img id="opponentSprite" class="opponent-img" src="tennis_robot_opponent.png" alt="">
   <script src="best_shot.js"></script>
   <script type="importmap">
     {
@@ -154,17 +167,41 @@
       };
     }
 
-    await loadTrainedShot();
+    function shotSignature() {
+      return JSON.stringify({
+        power: shotParams.power,
+        launchAngleDeg: shotParams.launchAngleDeg,
+        arcHeight: shotParams.arcHeight,
+        spin: shotParams.spin,
+        targetX: shotParams.targetX,
+        targetZ: shotParams.targetZ,
+        incomingX: shotParams.incomingX,
+        incomingZ: shotParams.incomingZ,
+        incomingHeight: shotParams.incomingHeight,
+        incomingSpeed: shotParams.incomingSpeed,
+        incomingSpin: shotParams.incomingSpin,
+        opponentX: shotParams.opponentX,
+        opponentZ: shotParams.opponentZ,
+        opponentVx: shotParams.opponentVx,
+        opponentVz: shotParams.opponentVz
+      });
+    }
 
-    document.getElementById("power").textContent = `${Math.round(shotParams.power * 100)}%`;
-    document.getElementById("launch").textContent = `${shotParams.launchAngleDeg} deg`;
-    document.getElementById("arc").textContent = `${shotParams.arcHeight.toFixed(2)}m`;
-    document.getElementById("spin").textContent = `${shotParams.spin >= 0 ? "Topspin" : "Slice"} ${Math.abs(shotParams.spin).toFixed(2)}`;
-    document.getElementById("incoming").textContent = `${shotParams.incomingSpeed.toFixed(0)}m/s ${shotParams.incomingHeight.toFixed(2)}m`;
-    document.getElementById("opponent").textContent = `x ${shotParams.opponentX.toFixed(1)} z ${shotParams.opponentZ.toFixed(1)}`;
-    document.getElementById("opponentRun").textContent = `${shotParams.opponentVx >= 0 ? "right" : "left"} ${shotParams.opponentVz >= 0 ? "forward" : "back"}`;
-    document.getElementById("target").textContent = shotParams.targetX < 0 ? "Wide left" : "Wide right";
-    document.getElementById("fitness").textContent = String(shotParams.fitness);
+    function updateHud() {
+      document.getElementById("power").textContent = `${Math.round(shotParams.power * 100)}%`;
+      document.getElementById("launch").textContent = `${shotParams.launchAngleDeg} deg`;
+      document.getElementById("arc").textContent = `${shotParams.arcHeight.toFixed(2)}m`;
+      document.getElementById("spin").textContent = `${shotParams.spin >= 0 ? "Topspin" : "Slice"} ${Math.abs(shotParams.spin).toFixed(2)}`;
+      document.getElementById("incoming").textContent = `${shotParams.incomingSpeed.toFixed(0)}m/s ${shotParams.incomingHeight.toFixed(2)}m`;
+      document.getElementById("opponent").textContent = `x ${shotParams.opponentX.toFixed(1)} z ${shotParams.opponentZ.toFixed(1)}`;
+      document.getElementById("opponentRun").textContent = `${shotParams.opponentVx >= 0 ? "right" : "left"} ${shotParams.opponentVz >= 0 ? "forward" : "back"}`;
+      document.getElementById("target").textContent = shotParams.targetX < 0 ? "Wide left" : "Wide right";
+      document.getElementById("fitness").textContent = String(shotParams.fitness);
+    }
+
+    await loadTrainedShot();
+    updateHud();
+    let currentShotSignature = shotSignature();
 
     const camera = new THREE.PerspectiveCamera(26, window.innerWidth / window.innerHeight, 0.1, 140);
     camera.position.set(0, 31.5, 24.5);
@@ -324,19 +361,8 @@
 
     scene.add(netGroup);
 
-    const loader = new THREE.TextureLoader();
-    const opponentTexture = loader.load("../tennis_robot_opponent.png");
-    opponentTexture.colorSpace = THREE.SRGBColorSpace;
-    const opponent = new THREE.Sprite(
-      new THREE.SpriteMaterial({
-        map: opponentTexture,
-        transparent: true,
-        depthTest: true
-      })
-    );
-    opponent.position.set(shotParams.opponentX, 1.25, shotParams.opponentZ);
-    opponent.scale.set(1.15, 1.75, 1);
-    scene.add(opponent);
+    const opponentImg = document.getElementById("opponentSprite");
+    const opponentAnchor = new THREE.Vector3(shotParams.opponentX, 1.0, shotParams.opponentZ);
 
     const opponentShadow = new THREE.Mesh(
       new THREE.CircleGeometry(0.55, 40),
@@ -374,6 +400,57 @@
     targetMarker.add(targetCore);
     targetMarker.position.set(shotParams.targetX, 0.09, shotParams.targetZ);
     scene.add(targetMarker);
+
+    function updateSceneFromShot(resetAnimation = false) {
+      opponentAnchor.set(shotParams.opponentX, 1.0, shotParams.opponentZ);
+      opponentShadow.position.set(shotParams.opponentX, 0.066, shotParams.opponentZ);
+      targetMarker.position.set(shotParams.targetX, 0.09, shotParams.targetZ);
+
+      const nextDirection = new THREE.Vector3(shotParams.opponentVx, 0, shotParams.opponentVz);
+      if (nextDirection.lengthSq() < 0.001) {
+        nextDirection.set(1, 0, 0);
+      } else {
+        nextDirection.normalize();
+      }
+      opponentArrow.position.set(shotParams.opponentX, 0.18, shotParams.opponentZ);
+      opponentArrow.setDirection(nextDirection);
+      opponentArrow.setLength(1.65, 0.38, 0.22);
+
+      if (resetAnimation) {
+        startedAt = performance.now();
+        for (const dot of trail) {
+          dot.visible = false;
+        }
+      }
+    }
+
+    function positionOpponentImage() {
+      const projected = opponentAnchor.clone().project(camera);
+      const left = (projected.x * 0.5 + 0.5) * window.innerWidth;
+      const top = (-projected.y * 0.5 + 0.5) * window.innerHeight;
+      const scale = THREE.MathUtils.clamp(1.15 - projected.z * 0.24, 0.72, 1.2);
+      opponentImg.style.left = `${left}px`;
+      opponentImg.style.top = `${top}px`;
+      opponentImg.style.transform = `translate(-50%, -88%) scale(${scale})`;
+      opponentImg.style.display = projected.z > 1 ? "none" : "block";
+    }
+
+    function pollShotData() {
+      const script = document.createElement("script");
+      script.src = `best_shot.js?ts=${Date.now()}`;
+      script.onload = () => {
+        applyTrainedShot(window.WINNERMIND_BEST_SHOT || {});
+        const nextSignature = shotSignature();
+        if (nextSignature !== currentShotSignature) {
+          currentShotSignature = nextSignature;
+          updateHud();
+          updateSceneFromShot(true);
+        }
+        script.remove();
+      };
+      script.onerror = () => script.remove();
+      document.body.appendChild(script);
+    }
 
     function makeBallTexture() {
       const canvas = document.createElement("canvas");
@@ -478,6 +555,8 @@
     let startedAt = performance.now();
     let last = startedAt;
     let cursor = 0;
+    updateSceneFromShot(false);
+    setInterval(pollShotData, 1800);
 
     function animate(now) {
       requestAnimationFrame(animate);
@@ -519,6 +598,7 @@
       const follow = Math.sin(t * Math.PI) * 0.18;
       camera.position.x = follow;
       camera.lookAt(0, 0, -1.4);
+      positionOpponentImage();
       renderer.render(scene, camera);
     }
 
@@ -526,6 +606,7 @@
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
+      positionOpponentImage();
     });
 
     animate(performance.now());

@@ -47,7 +47,11 @@ The program trains a Keras neural network to choose tennis shot parameters. The 
   - fitness rewards hitting away from the opponent's future position
   - fitness rewards change-direction shots against the opponent's run
   - 3D visualization shows the opponent robot image, movement arrow, and chosen target marker
-- Note: because the model input changed from 8 to 10 features, retrain before using the random-shot demo again.
+- Re-trained a compatible 10-input opponent-aware model:
+  - best average fitness reached `900.64`
+  - best shot fitness reached `1008.52`
+- Copied `tennis_robot_opponent.png` into `reports/` so the 3D HTML can load the opponent image directly.
+- Strengthened GUI CSS so Gradio loading/progress indicators render green instead of black.
 - Added a sample `reports/best_shot.json` so the visualization works immediately; training overwrites it with real model output.
 - Removed old experimental preview files to keep the project focused.
 - Verified Python source syntax with `python -m compileall src`.
@@ -172,6 +176,7 @@ file:///C:/Users/ASUS-H170M/Desktop/from_idea/exercsie3/reports/tennis_court_rea
 - Latest `best_shot.json` contains a valid in-court shot that clears the net.
 - Added `reports/best_shot.js` so the trained WinnerMind shot loads correctly when the HTML is opened directly from the file system.
 - Added a random incoming ball demo so each run can show a different tennis situation and a model-controlled return shot.
+- Added opponent movement awareness, target marker, opponent robot marker, and green GUI progress styling.
 
 ## Suggested Next Commit
 

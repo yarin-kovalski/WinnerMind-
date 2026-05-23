@@ -10,9 +10,13 @@ __pycache__/
 models/*.keras
 models/*.h5
 models/*.weights.h5
+!models/winnermind_best.weights.h5
 reports/*.png
+!reports/fitness.png
+!reports/tennis_robot_opponent.png
 reports/*.gif
 reports/*.csv
+!reports/training_history.csv
 videos/
 dist/
 build/
