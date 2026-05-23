@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from math import sin, pi
+from math import pi, sin
 
 import numpy as np
 
@@ -19,6 +19,8 @@ class ShotScenario:
     incoming_spin: float
     opponent_x: float
     opponent_z: float
+    opponent_vx: float
+    opponent_vz: float
     desired_target_x: float
     desired_target_z: float
     aggression: float
@@ -36,6 +38,8 @@ class ShotScenario:
                     (self.incoming_spin + 1.0) / 2.0,
                     (self.opponent_x + half_width) / config.singles_width,
                     (-self.opponent_z) / half_length,
+                    (self.opponent_vx + 1.0) / 2.0,
+                    (self.opponent_vz + 1.0) / 2.0,
                     self.aggression,
                 ]
             ],
@@ -79,6 +83,10 @@ class ShotResult:
             "inCourt": self.in_court,
             "targetError": round(self.target_error, 3),
             "opponentDistance": round(self.opponent_distance, 3),
+            "opponentX": round(self.scenario.opponent_x, 3),
+            "opponentZ": round(self.scenario.opponent_z, 3),
+            "opponentVx": round(self.scenario.opponent_vx, 3),
+            "opponentVz": round(self.scenario.opponent_vz, 3),
             "incomingX": round(self.scenario.incoming_x, 3),
             "incomingZ": round(self.scenario.incoming_z, 3),
             "incomingHeight": round(self.scenario.incoming_height, 3),
@@ -164,6 +172,10 @@ def simulate_shot(
     in_court = -half_width <= end_x <= half_width and -half_length <= end_z <= 0
     target_error = float(np.hypot(end_x - scenario.desired_target_x, end_z - scenario.desired_target_z))
     opponent_distance = float(np.hypot(end_x - scenario.opponent_x, end_z - scenario.opponent_z))
+    future_opponent_x = scenario.opponent_x + scenario.opponent_vx * 1.45
+    future_opponent_z = scenario.opponent_z + scenario.opponent_vz * 1.45
+    future_opponent_distance = float(np.hypot(end_x - future_opponent_x, end_z - future_opponent_z))
+    moving_opposite = max(0.0, -(end_x - scenario.opponent_x) * scenario.opponent_vx)
 
     fitness = 150.0
     speed_match = 1.0 - min(1.0, abs(params.power - scenario.incoming_speed / 40.0))
@@ -176,6 +188,8 @@ def simulate_shot(
         fitness += abs(params.spin) * 10.0 * (1.0 - scenario.aggression)
     fitness += max(0.0, 2.4 - abs(params.arc_height - 2.2)) * 18.0
     fitness += min(opponent_distance, 8.0) * (18.0 + scenario.aggression * 12.0)
+    fitness += min(future_opponent_distance, 8.0) * (10.0 + scenario.aggression * 10.0)
+    fitness += moving_opposite * (10.0 + scenario.aggression * 16.0)
     fitness -= target_error * 42.0
     fitness -= abs(params.launch_angle_deg - (14.0 + scenario.aggression * 7.0)) * 3.2
 
@@ -216,11 +230,11 @@ def standard_scenarios(config: CourtConfig = COURT_CONFIG) -> list[ShotScenario]
     """Training situations across target and opponent placements."""
     half_width = config.singles_width / 2
     return [
-        ShotScenario(1.9, 8.9, 1.15, 31.0, 0.45, 1.8, -5.3, -half_width + 0.85, -8.2, 0.9),
-        ShotScenario(-1.4, 8.4, 1.35, 27.0, -0.35, -1.6, -5.0, half_width - 0.9, -8.0, 0.85),
-        ShotScenario(0.5, 7.8, 1.8, 22.0, 0.2, 2.2, -4.8, -2.9, -6.8, 0.65),
-        ShotScenario(-0.8, 8.2, 1.05, 25.0, -0.55, 0.4, -6.0, 2.7, -7.6, 0.7),
-        ShotScenario(1.1, 8.7, 1.25, 33.0, 0.65, -0.8, -5.4, -3.25, -7.65, 0.95),
+        ShotScenario(1.9, 8.9, 1.15, 31.0, 0.45, 1.8, -5.3, 0.75, 0.2, -half_width + 0.85, -8.2, 0.9),
+        ShotScenario(-1.4, 8.4, 1.35, 27.0, -0.35, -1.6, -5.0, -0.7, 0.3, half_width - 0.9, -8.0, 0.85),
+        ShotScenario(0.5, 7.8, 1.8, 22.0, 0.2, 2.2, -4.8, 0.55, -0.1, -2.9, -6.8, 0.65),
+        ShotScenario(-0.8, 8.2, 1.05, 25.0, -0.55, 0.4, -6.0, -0.85, 0.45, 2.7, -7.6, 0.7),
+        ShotScenario(1.1, 8.7, 1.25, 33.0, 0.65, -0.8, -5.4, 0.9, 0.1, -3.25, -7.65, 0.95),
     ]
 
 
@@ -238,9 +252,11 @@ def random_scenario(seed: int | None = None, config: CourtConfig = COURT_CONFIG)
 
     opponent_x = float(rng.uniform(-half_width + 0.7, half_width - 0.7))
     opponent_z = float(rng.uniform(-8.7, -4.6))
+    opponent_vx = float(rng.choice([-1.0, 1.0]) * rng.uniform(0.35, 1.0))
+    opponent_vz = float(rng.uniform(-0.25, 0.55))
     aggression = float(rng.uniform(0.55, 0.98))
 
-    target_side = -1.0 if opponent_x > 0 else 1.0
+    target_side = -1.0 if opponent_vx > 0 else 1.0
     desired_target_x = float(target_side * rng.uniform(half_width - 1.35, half_width - 0.55))
     desired_target_z = float(rng.uniform(-half_length + 1.8, -6.4))
 
@@ -252,6 +268,8 @@ def random_scenario(seed: int | None = None, config: CourtConfig = COURT_CONFIG)
         incoming_spin=incoming_spin,
         opponent_x=opponent_x,
         opponent_z=opponent_z,
+        opponent_vx=opponent_vx,
+        opponent_vz=opponent_vz,
         desired_target_x=desired_target_x,
         desired_target_z=desired_target_z,
         aggression=aggression,

@@ -67,6 +67,8 @@
     <div class="row"><span>Arc height</span><strong id="arc">2.35m</strong></div>
     <div class="row"><span>Spin</span><strong id="spin">Topspin 0.74</strong></div>
     <div class="row"><span>Incoming</span><strong id="incoming">33m/s 1.25m</strong></div>
+    <div class="row"><span>Opponent</span><strong id="opponent">x 0.0 z -5.5</strong></div>
+    <div class="row"><span>Run</span><strong id="opponentRun">right</strong></div>
     <div class="row"><span>Target</span><strong id="target">Wide</strong></div>
     <div class="row"><span>Fitness</span><strong id="fitness">968</strong></div>
   </aside>
@@ -108,7 +110,11 @@
       incomingZ: 8.7,
       incomingHeight: 1.25,
       incomingSpeed: 33,
-      incomingSpin: 0.65
+      incomingSpin: 0.65,
+      opponentX: -0.8,
+      opponentZ: -5.4,
+      opponentVx: 0.9,
+      opponentVz: 0.1
     };
 
     async function loadTrainedShot() {
@@ -140,7 +146,11 @@
         incomingZ: Number(trained.incomingZ ?? shotParams.incomingZ),
         incomingHeight: Number(trained.incomingHeight ?? shotParams.incomingHeight),
         incomingSpeed: Number(trained.incomingSpeed ?? shotParams.incomingSpeed),
-        incomingSpin: Number(trained.incomingSpin ?? shotParams.incomingSpin)
+        incomingSpin: Number(trained.incomingSpin ?? shotParams.incomingSpin),
+        opponentX: Number(trained.opponentX ?? shotParams.opponentX),
+        opponentZ: Number(trained.opponentZ ?? shotParams.opponentZ),
+        opponentVx: Number(trained.opponentVx ?? shotParams.opponentVx),
+        opponentVz: Number(trained.opponentVz ?? shotParams.opponentVz)
       };
     }
 
@@ -151,6 +161,8 @@
     document.getElementById("arc").textContent = `${shotParams.arcHeight.toFixed(2)}m`;
     document.getElementById("spin").textContent = `${shotParams.spin >= 0 ? "Topspin" : "Slice"} ${Math.abs(shotParams.spin).toFixed(2)}`;
     document.getElementById("incoming").textContent = `${shotParams.incomingSpeed.toFixed(0)}m/s ${shotParams.incomingHeight.toFixed(2)}m`;
+    document.getElementById("opponent").textContent = `x ${shotParams.opponentX.toFixed(1)} z ${shotParams.opponentZ.toFixed(1)}`;
+    document.getElementById("opponentRun").textContent = `${shotParams.opponentVx >= 0 ? "right" : "left"} ${shotParams.opponentVz >= 0 ? "forward" : "back"}`;
     document.getElementById("target").textContent = shotParams.targetX < 0 ? "Wide left" : "Wide right";
     document.getElementById("fitness").textContent = String(shotParams.fitness);
 
@@ -311,6 +323,57 @@
     }
 
     scene.add(netGroup);
+
+    const loader = new THREE.TextureLoader();
+    const opponentTexture = loader.load("../tennis_robot_opponent.png");
+    opponentTexture.colorSpace = THREE.SRGBColorSpace;
+    const opponent = new THREE.Sprite(
+      new THREE.SpriteMaterial({
+        map: opponentTexture,
+        transparent: true,
+        depthTest: true
+      })
+    );
+    opponent.position.set(shotParams.opponentX, 1.25, shotParams.opponentZ);
+    opponent.scale.set(1.15, 1.75, 1);
+    scene.add(opponent);
+
+    const opponentShadow = new THREE.Mesh(
+      new THREE.CircleGeometry(0.55, 40),
+      new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.22, depthWrite: false })
+    );
+    opponentShadow.rotation.x = -Math.PI / 2;
+    opponentShadow.position.set(shotParams.opponentX, 0.066, shotParams.opponentZ);
+    opponentShadow.scale.set(1.0, 0.55, 1.0);
+    scene.add(opponentShadow);
+
+    const runDirection = new THREE.Vector3(shotParams.opponentVx, 0, shotParams.opponentVz).normalize();
+    const opponentArrow = new THREE.ArrowHelper(
+      runDirection.lengthSq() > 0 ? runDirection : new THREE.Vector3(1, 0, 0),
+      new THREE.Vector3(shotParams.opponentX, 0.18, shotParams.opponentZ),
+      1.65,
+      0x19c37d,
+      0.38,
+      0.22
+    );
+    scene.add(opponentArrow);
+
+    const targetMarker = new THREE.Group();
+    const targetRing = new THREE.Mesh(
+      new THREE.TorusGeometry(0.52, 0.035, 12, 72),
+      new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.85 })
+    );
+    targetRing.rotation.x = Math.PI / 2;
+    targetMarker.add(targetRing);
+
+    const targetCore = new THREE.Mesh(
+      new THREE.CircleGeometry(0.22, 36),
+      new THREE.MeshBasicMaterial({ color: 0x19c37d, transparent: true, opacity: 0.5, depthWrite: false })
+    );
+    targetCore.rotation.x = -Math.PI / 2;
+    targetMarker.add(targetCore);
+    targetMarker.position.set(shotParams.targetX, 0.09, shotParams.targetZ);
+    scene.add(targetMarker);
 
     function makeBallTexture() {
       const canvas = document.createElement("canvas");

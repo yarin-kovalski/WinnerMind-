@@ -41,6 +41,13 @@ The program trains a Keras neural network to choose tennis shot parameters. The 
   - scores the shot with the fitness function
   - updates the 3D visualization data
 - Added random-shot support to the optional Gradio GUI.
+- Fixed the GUI random demo so each click generates a fresh random incoming ball instead of repeating the same seed.
+- Added opponent placement and running-direction awareness:
+  - model input now includes opponent movement
+  - fitness rewards hitting away from the opponent's future position
+  - fitness rewards change-direction shots against the opponent's run
+  - 3D visualization shows the opponent robot image, movement arrow, and chosen target marker
+- Note: because the model input changed from 8 to 10 features, retrain before using the random-shot demo again.
 - Added a sample `reports/best_shot.json` so the visualization works immediately; training overwrites it with real model output.
 - Removed old experimental preview files to keep the project focused.
 - Verified Python source syntax with `python -m compileall src`.
@@ -74,6 +81,8 @@ The neural network receives:
 - incoming ball spin
 - opponent x position
 - opponent z position
+- opponent running x direction
+- opponent running z direction
 - aggression level
 
 The neural network outputs:
@@ -136,7 +145,7 @@ file:///C:/Users/ASUS-H170M/Desktop/from_idea/exercsie3/reports/tennis_court_rea
 - Verified Python source syntax with the venv Python.
 - Added opponent handedness as a proposed next feature in `ROADMAP.md`.
 - Step 3 verification completed:
-  - Keras model input shape: `(None, 8)`
+  - Keras model input shape: `(None, 10)`
   - Keras model output shape: `(None, 6)`
   - One simulated shot produced valid trajectory and fitness data.
   - Tiny 2-generation genetic training run completed.
@@ -167,7 +176,7 @@ file:///C:/Users/ASUS-H170M/Desktop/from_idea/exercsie3/reports/tennis_court_rea
 ## Suggested Next Commit
 
 ```text
-feat: add random incoming ball demo
+feat: add opponent movement awareness
 ```
 
 ## Proposed Next Feature Commit

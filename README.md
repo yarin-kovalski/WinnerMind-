@@ -4,7 +4,15 @@ Exercise 3 implementation for Assignment 3: training a Keras neural network with
 
 ## Idea
 
-WinnerMind learns tennis shot strategy in simulation. The model receives a game situation and outputs:
+WinnerMind learns tennis shot strategy in simulation. The model receives a game situation:
+
+- incoming ball position
+- incoming ball height, speed, and spin
+- opponent position
+- opponent running direction
+- aggression level
+
+The model outputs:
 
 - power
 - launch angle
@@ -13,7 +21,7 @@ WinnerMind learns tennis shot strategy in simulation. The model receives a game 
 - target x position
 - target z position
 
-The genetic algorithm scores each model using a fitness function and evolves better models over generations.
+The genetic algorithm scores each model using a fitness function and evolves better models over generations. Strong shots are rewarded when they clear the net, land in court, stay away from the opponent, and hit against the opponent's movement direction.
 
 ## Setup
 
@@ -44,7 +52,7 @@ Outputs:
 python -m neuropilot.demo
 ```
 
-This loads `models/winnermind_best.weights.h5`, creates a new random incoming ball, lets the trained neural network choose power, launch angle, arc height, spin, and target, scores the result with the fitness function, and refreshes `reports/best_shot.json` plus `reports/best_shot.js` for the 3D animation.
+This loads `models/winnermind_best.weights.h5`, creates a new random incoming ball, lets the trained neural network choose power, launch angle, arc height, spin, and target, scores the result with the fitness function, and refreshes `reports/best_shot.json` plus `reports/best_shot.js` for the 3D animation. The GUI button creates a fresh random ball every click.
 
 ## Optional GUI
 

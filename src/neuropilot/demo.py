@@ -21,7 +21,13 @@ def predict_random_shot(seed: int | None = None, weights_path: Path = WEIGHTS_PA
         raise FileNotFoundError("Missing trained weights. Run: python -m neuropilot.train")
 
     model = build_pilot_model()
-    model.load_weights(weights_path)
+    try:
+        model.load_weights(weights_path)
+    except ValueError as error:
+        raise RuntimeError(
+            "The saved weights do not match the current WinnerMind model. "
+            "Run training again after the opponent-awareness update: python -m neuropilot.train"
+        ) from error
 
     scenario = random_scenario(seed=seed)
     outputs = model.predict(scenario.as_model_input(), verbose=0)[0]
@@ -63,6 +69,8 @@ def main() -> None:
     print(f"- height: {data['incomingHeight']}m")
     print(f"- speed: {data['incomingSpeed']}m/s")
     print(f"- spin: {data['incomingSpin']}")
+    print(f"- opponent: x={data['opponentX']}m, z={data['opponentZ']}m")
+    print(f"- opponent movement: vx={data['opponentVx']}, vz={data['opponentVz']}")
 
     print("\nWinnerMind chosen return:")
     print(f"- power: {data['power']}")

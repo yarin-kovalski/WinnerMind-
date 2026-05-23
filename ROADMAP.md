@@ -178,7 +178,7 @@ Status: done
 
 What was checked:
 
-- Keras model input shape is `(None, 8)`.
+- Keras model input shape is `(None, 10)`.
 - Keras model output shape is `(None, 6)`.
 - One simulated shot produced fitness and trajectory data.
 - A tiny 2-generation genetic training run completed.
