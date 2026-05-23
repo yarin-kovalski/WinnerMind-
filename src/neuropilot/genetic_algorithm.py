@@ -107,6 +107,11 @@ def train(
         rows.append({"generation": generation + 1, "best_fitness": best.fitness, "average_fitness": average})
         print(f"Generation {generation + 1:02d}: best={best.fitness:.2f}, average={average:.2f}")
 
+        REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+        write_history(rows, history_path)
+        save_fitness_chart(best_history, average_history, REPORTS_DIR / "fitness.png")
+        write_best_shot(best.best_result, best_shot_path)
+
         elites = evaluated[: config.elite_count]
         next_population = [clone_weights(item.weights) for item in elites]
         while len(next_population) < config.population_size:

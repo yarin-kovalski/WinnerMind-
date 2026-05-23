@@ -83,15 +83,14 @@ That score is the fitness. The genetic algorithm improves the model over generat
 
 ## Next Step
 
-Install dependencies and run training:
+Inspect the generated training outputs:
 
-```powershell
-pip install -r requirements.txt
-$env:PYTHONPATH="src"
-python -m neuropilot.train
-```
+- `reports/fitness.png`
+- `reports/training_history.csv`
+- `reports/best_shot.json`
+- `models/acemind_best.weights.h5`
 
-Then open:
+Then open the 3D visualization:
 
 ```text
 http://localhost:8000/reports/tennis_court_realistic_3d.html
@@ -131,11 +130,20 @@ http://localhost:8000/reports/tennis_court_realistic_3d.html
   - best-shot JSON exports incoming ball values
   - 3D animation shows the incoming ball first and then the AI return shot
 - Fixed the 3D animation timing so the incoming ball bounces once on our side and is returned immediately, instead of bouncing twice before the AI shot.
+- Updated training so `reports/fitness.png`, `reports/training_history.csv`, and `reports/best_shot.json` refresh after every generation, matching the assignment request for a chart updated during training.
+- Full training completed through generation 40.
+- Training generated:
+  - `models/acemind_best.weights.h5`
+  - `reports/training_history.csv`
+  - `reports/fitness.png`
+  - `reports/best_shot.json`
+- Best generation result reached best fitness around `722.87`.
+- Latest `best_shot.json` contains a valid in-court shot that clears the net.
 
 ## Suggested Next Commit
 
 ```text
-fix: return incoming ball after first bounce
+feat: train acemind shot strategy model
 ```
 
 ## Proposed Next Feature Commit
