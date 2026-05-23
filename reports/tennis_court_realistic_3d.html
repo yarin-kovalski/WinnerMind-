@@ -469,36 +469,38 @@
         ctx.fillRect(Math.random() * 512, Math.random() * 256, 1.4, 1.4);
       }
       ctx.strokeStyle = "rgba(255,255,255,0.9)";
-      ctx.lineWidth = 9;
+      ctx.lineWidth = 13;
       ctx.beginPath();
       ctx.arc(105, 128, 88, -1.25, 1.25);
       ctx.stroke();
       ctx.beginPath();
       ctx.arc(407, 128, 88, Math.PI - 1.25, Math.PI + 1.25);
       ctx.stroke();
-      ctx.strokeStyle = "rgba(8,18,10,0.88)";
-      ctx.lineWidth = 7;
+      ctx.strokeStyle = "rgba(8,18,10,0.96)";
+      ctx.lineWidth = 18;
+      ctx.lineCap = "round";
       ctx.beginPath();
-      ctx.moveTo(236, 86);
-      ctx.quadraticCurveTo(260, 70, 284, 86);
-      ctx.quadraticCurveTo(260, 102, 236, 86);
+      ctx.moveTo(196, 72);
+      ctx.quadraticCurveTo(260, 40, 324, 72);
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(236, 168);
-      ctx.quadraticCurveTo(260, 152, 284, 168);
-      ctx.quadraticCurveTo(260, 184, 236, 168);
+      ctx.moveTo(196, 184);
+      ctx.quadraticCurveTo(260, 216, 324, 184);
       ctx.stroke();
-      ctx.fillStyle = "rgba(8,18,10,0.9)";
-      ctx.font = "bold 38px Arial";
+      ctx.fillStyle = "rgba(8,18,10,1)";
+      ctx.font = "900 76px Arial Black, Impact, Arial";
       ctx.textAlign = "center";
-      ctx.fillText("WM", 260, 141);
+      ctx.fillText("WM", 260, 134);
+      ctx.fillStyle = "rgba(178,21,31,0.98)";
+      ctx.font = "900 42px Arial Black, Impact, Arial";
+      ctx.fillText("SPIN", 260, 178);
       const texture = new THREE.CanvasTexture(canvas);
       texture.colorSpace = THREE.SRGBColorSpace;
       return texture;
     }
 
     const ball = new THREE.Mesh(
-      new THREE.SphereGeometry(0.19, 64, 40),
+      new THREE.SphereGeometry(0.24, 64, 40),
       new THREE.MeshStandardMaterial({
         map: makeBallTexture(),
         roughness: 0.86,
@@ -510,7 +512,7 @@
     scene.add(ball);
 
     const ballShadow = new THREE.Mesh(
-      new THREE.CircleGeometry(0.34, 40),
+      new THREE.CircleGeometry(0.42, 40),
       new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.26, depthWrite: false })
     );
     ballShadow.rotation.x = -Math.PI / 2;
