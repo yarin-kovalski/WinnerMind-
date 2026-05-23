@@ -114,11 +114,17 @@ http://localhost:8000/reports/tennis_court_realistic_3d.html
 - Verified imports for TensorFlow, Keras, NumPy, Matplotlib, Gradio, and Pillow.
 - Verified Python source syntax with the venv Python.
 - Added opponent handedness as a proposed next feature in `ROADMAP.md`.
+- Step 3 verification completed:
+  - Keras model input shape: `(None, 5)`
+  - Keras model output shape: `(None, 6)`
+  - One simulated shot produced valid trajectory and fitness data.
+  - Tiny 2-generation genetic training run completed.
+  - Tiny run verified weights, history CSV, and best-shot JSON export.
 
 ## Suggested Next Commit
 
 ```text
-chore: verify project dependencies
+test: verify acemind training pipeline
 ```
 
 ## Proposed Next Feature Commit

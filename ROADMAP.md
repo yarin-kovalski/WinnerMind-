@@ -136,7 +136,25 @@ Commit name:
 feat: add opponent handedness to shot strategy
 ```
 
-### Step 4 - Run training
+### Step 4 - Verify training pipeline
+
+Status: done
+
+What was checked:
+
+- Keras model input shape is `(None, 5)`.
+- Keras model output shape is `(None, 6)`.
+- One simulated shot produced fitness and trajectory data.
+- A tiny 2-generation genetic training run completed.
+- Tiny test produced weights, history CSV, and best-shot JSON.
+
+Commit name:
+
+```text
+test: verify acemind training pipeline
+```
+
+### Step 5 - Run full training
 
 Status: not done
 
@@ -160,7 +178,7 @@ Commit name:
 feat: train acemind shot strategy model
 ```
 
-### Step 5 - Check visualization
+### Step 6 - Check visualization
 
 Status: not done
 
@@ -182,7 +200,7 @@ Commit name:
 feat: connect trained shot to 3d court
 ```
 
-### Step 6 - Tune if needed
+### Step 7 - Tune if needed
 
 Status: not done
 
@@ -199,7 +217,7 @@ Commit name:
 tune: improve shot fitness behavior
 ```
 
-### Step 7 - Record final video
+### Step 8 - Record final video
 
 Status: not done
 
