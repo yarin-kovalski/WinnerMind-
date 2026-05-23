@@ -88,7 +88,7 @@ feat: add arc height to shot strategy model
 
 ### Step 3 - Install dependencies
 
-Status: not done
+Status: done
 
 Command:
 
@@ -103,6 +103,38 @@ chore: install training dependencies
 ```
 
 Usually you do not commit installed packages or `.venv`.
+
+Verified imports:
+
+- TensorFlow
+- Keras
+- NumPy
+- Matplotlib
+- Gradio
+- Pillow
+
+### Optional Feature - Opponent handedness
+
+Status: proposed
+
+Idea:
+
+Add whether the opponent is left-handed or right-handed. This can affect the opponent's weaker side and make the AI choose smarter targets.
+
+Potential model input:
+
+- opponent handedness: `0 = left-handed`, `1 = right-handed`
+
+Potential fitness behavior:
+
+- reward shots to the opponent's weaker side
+- make the 3D panel show opponent handedness
+
+Commit name:
+
+```text
+feat: add opponent handedness to shot strategy
+```
 
 ### Step 4 - Run training
 

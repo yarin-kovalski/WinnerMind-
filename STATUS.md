@@ -109,9 +109,20 @@ http://localhost:8000/reports/tennis_court_realistic_3d.html
 - Connected training output to the 3D visualization through `best_shot.json`.
 - Added `ROADMAP.md` with step-by-step implementation plan and suggested commit names.
 - Added explicit `arc_height` / `arcHeight` feature to the neural network output, simulator, fitness scoring, best-shot JSON, and 3D visualization.
+- Created `.venv`.
+- Installed dependencies from `requirements.txt`.
+- Verified imports for TensorFlow, Keras, NumPy, Matplotlib, Gradio, and Pillow.
+- Verified Python source syntax with the venv Python.
+- Added opponent handedness as a proposed next feature in `ROADMAP.md`.
 
 ## Suggested Next Commit
 
 ```text
-feat: add arc height to shot strategy model
+chore: verify project dependencies
+```
+
+## Proposed Next Feature Commit
+
+```text
+feat: add opponent handedness to shot strategy
 ```
