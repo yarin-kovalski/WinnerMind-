@@ -222,3 +222,37 @@ def standard_scenarios(config: CourtConfig = COURT_CONFIG) -> list[ShotScenario]
         ShotScenario(-0.8, 8.2, 1.05, 25.0, -0.55, 0.4, -6.0, 2.7, -7.6, 0.7),
         ShotScenario(1.1, 8.7, 1.25, 33.0, 0.65, -0.8, -5.4, -3.25, -7.65, 0.95),
     ]
+
+
+def random_scenario(seed: int | None = None, config: CourtConfig = COURT_CONFIG) -> ShotScenario:
+    """Create a realistic random incoming ball situation for the trained model."""
+    rng = np.random.default_rng(seed)
+    half_width = config.singles_width / 2
+    half_length = config.court_length / 2
+
+    incoming_x = float(rng.uniform(-half_width + 0.6, half_width - 0.6))
+    incoming_z = float(rng.uniform(7.4, half_length - 1.8))
+    incoming_height = float(rng.uniform(0.75, 2.2))
+    incoming_speed = float(rng.uniform(18.0, 36.0))
+    incoming_spin = float(rng.uniform(-0.9, 0.9))
+
+    opponent_x = float(rng.uniform(-half_width + 0.7, half_width - 0.7))
+    opponent_z = float(rng.uniform(-8.7, -4.6))
+    aggression = float(rng.uniform(0.55, 0.98))
+
+    target_side = -1.0 if opponent_x > 0 else 1.0
+    desired_target_x = float(target_side * rng.uniform(half_width - 1.35, half_width - 0.55))
+    desired_target_z = float(rng.uniform(-half_length + 1.8, -6.4))
+
+    return ShotScenario(
+        incoming_x=incoming_x,
+        incoming_z=incoming_z,
+        incoming_height=incoming_height,
+        incoming_speed=incoming_speed,
+        incoming_spin=incoming_spin,
+        opponent_x=opponent_x,
+        opponent_z=opponent_z,
+        desired_target_x=desired_target_x,
+        desired_target_z=desired_target_z,
+        aggression=aggression,
+    )

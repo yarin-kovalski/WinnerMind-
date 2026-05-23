@@ -8,7 +8,8 @@ WinnerMind learns tennis shot strategy in simulation. The model receives a game 
 
 - power
 - launch angle
-- topspin
+- arc height
+- signed spin, where positive is topspin and negative is slice/backspin
 - target x position
 - target z position
 
@@ -37,15 +38,29 @@ Outputs:
 - `reports/best_shot.json`
 - `reports/best_shot.js`
 
-## Show Best Shot Data
+## Random Incoming Ball Demo
 
 ```powershell
 python -m neuropilot.demo
 ```
 
+This loads `models/winnermind_best.weights.h5`, creates a new random incoming ball, lets the trained neural network choose power, launch angle, arc height, spin, and target, scores the result with the fitness function, and refreshes `reports/best_shot.json` plus `reports/best_shot.js` for the 3D animation.
+
+## Optional GUI
+
+```powershell
+python -m neuropilot.gui
+```
+
 ## 3D Visualization
 
-Start a local server from the project root:
+Open directly:
+
+```text
+file:///C:/Users/ASUS-H170M/Desktop/from_idea/exercsie3/reports/tennis_court_realistic_3d.html
+```
+
+Or start a local server from the project root:
 
 ```powershell
 python -m http.server 8000
@@ -67,5 +82,6 @@ The animation reads `reports/best_shot.js` when opened directly from `file:///..
 - Show generations improving.
 - Show `reports/fitness.png`.
 - Show `models/winnermind_best.weights.h5`.
+- Run `python -m neuropilot.demo` to show a new random incoming ball and the trained model response.
 - Show `reports/best_shot.json`.
 - Show the 3D court animation using the trained shot parameters.

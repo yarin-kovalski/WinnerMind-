@@ -34,6 +34,13 @@ The program trains a Keras neural network to choose tennis shot parameters. The 
 - Built final visualization:
   - `reports/tennis_court_realistic_3d.html`
 - The 3D visualization reads `reports/best_shot.js` when opened with `file:///...`, and `reports/best_shot.json` when served from a local server.
+- Added `python -m neuropilot.demo`:
+  - creates a random incoming ball situation
+  - loads the trained WinnerMind weights
+  - lets the neural network choose the return shot
+  - scores the shot with the fitness function
+  - updates the 3D visualization data
+- Added random-shot support to the optional Gradio GUI.
 - Added a sample `reports/best_shot.json` so the visualization works immediately; training overwrites it with real model output.
 - Removed old experimental preview files to keep the project focused.
 - Verified Python source syntax with `python -m compileall src`.
@@ -92,7 +99,13 @@ That score is the fitness. The genetic algorithm improves the model over generat
 
 ## Next Step
 
-Inspect the generated training outputs:
+Run the random incoming ball demo:
+
+```powershell
+python -m neuropilot.demo --seed 12
+```
+
+Then inspect the generated training outputs:
 
 - `reports/fitness.png`
 - `reports/training_history.csv`
@@ -149,11 +162,12 @@ file:///C:/Users/ASUS-H170M/Desktop/from_idea/exercsie3/reports/tennis_court_rea
 - Best generation result reached best fitness around `722.87`.
 - Latest `best_shot.json` contains a valid in-court shot that clears the net.
 - Added `reports/best_shot.js` so the trained WinnerMind shot loads correctly when the HTML is opened directly from the file system.
+- Added a random incoming ball demo so each run can show a different tennis situation and a model-controlled return shot.
 
 ## Suggested Next Commit
 
 ```text
-feat: connect winnermind shot data to file preview
+feat: add random incoming ball demo
 ```
 
 ## Proposed Next Feature Commit
