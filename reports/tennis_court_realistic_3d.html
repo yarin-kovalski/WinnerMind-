@@ -69,6 +69,52 @@
       color: #fff;
       font-weight: 800;
     }
+
+    .explain {
+      position: fixed;
+      left: 22px;
+      bottom: 22px;
+      width: 300px;
+      padding: 14px;
+      border-radius: 8px;
+      background: rgba(6, 17, 10, 0.72);
+      border: 1px solid rgba(183, 255, 60, 0.28);
+      color: #f8fbff;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      box-shadow: 0 16px 42px rgba(0, 0, 0, 0.26);
+      backdrop-filter: blur(8px);
+      pointer-events: none;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-bottom: 8px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: #19c37d;
+      color: #031108;
+      font-weight: 900;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    .badge.bad {
+      background: #ff4747;
+      color: #fff;
+    }
+
+    .explain h2 {
+      margin: 0 0 7px;
+      font-size: 16px;
+      line-height: 1.1;
+    }
+
+    .explain p {
+      margin: 0;
+      color: #d9ffe3;
+      font-size: 13px;
+      line-height: 1.38;
+    }
   </style>
 </head>
 <body>
@@ -83,6 +129,11 @@
     <div class="row"><span>Run</span><strong id="opponentRun">right</strong></div>
     <div class="row"><span>Target</span><strong id="target">Wide</strong></div>
     <div class="row"><span>Fitness</span><strong id="fitness">968</strong></div>
+  </aside>
+  <aside class="explain">
+    <span id="resultBadge" class="badge">IN</span>
+    <h2 id="decisionTitle">Cross-court winner</h2>
+    <p id="decisionReason">WinnerMind attacks away from the opponent and targets open court.</p>
   </aside>
   <img id="opponentSprite" class="opponent-img" src="tennis_robot_opponent.png" alt="">
   <script src="best_shot.js"></script>
@@ -127,7 +178,11 @@
       opponentX: -0.8,
       opponentZ: -5.4,
       opponentVx: 0.9,
-      opponentVz: 0.1
+      opponentVz: 0.1,
+      clearedNet: true,
+      inCourt: true,
+      targetError: 0,
+      opponentDistance: 0
     };
 
     async function loadTrainedShot() {
@@ -163,7 +218,11 @@
         opponentX: Number(trained.opponentX ?? shotParams.opponentX),
         opponentZ: Number(trained.opponentZ ?? shotParams.opponentZ),
         opponentVx: Number(trained.opponentVx ?? shotParams.opponentVx),
-        opponentVz: Number(trained.opponentVz ?? shotParams.opponentVz)
+        opponentVz: Number(trained.opponentVz ?? shotParams.opponentVz),
+        clearedNet: Boolean(trained.clearedNet ?? shotParams.clearedNet),
+        inCourt: Boolean(trained.inCourt ?? shotParams.inCourt),
+        targetError: Number(trained.targetError ?? shotParams.targetError),
+        opponentDistance: Number(trained.opponentDistance ?? shotParams.opponentDistance)
       };
     }
 
@@ -183,7 +242,11 @@
         opponentX: shotParams.opponentX,
         opponentZ: shotParams.opponentZ,
         opponentVx: shotParams.opponentVx,
-        opponentVz: shotParams.opponentVz
+        opponentVz: shotParams.opponentVz,
+        clearedNet: shotParams.clearedNet,
+        inCourt: shotParams.inCourt,
+        targetError: shotParams.targetError,
+        opponentDistance: shotParams.opponentDistance
       });
     }
 
@@ -197,6 +260,18 @@
       document.getElementById("opponentRun").textContent = `${shotParams.opponentVx >= 0 ? "right" : "left"} ${shotParams.opponentVz >= 0 ? "forward" : "back"}`;
       document.getElementById("target").textContent = shotParams.targetX < 0 ? "Wide left" : "Wide right";
       document.getElementById("fitness").textContent = String(shotParams.fitness);
+      const badge = document.getElementById("resultBadge");
+      const result = !shotParams.clearedNet ? "NET" : shotParams.inCourt ? "IN" : "OUT";
+      badge.textContent = result;
+      badge.className = result === "IN" ? "badge" : "badge bad";
+
+      const direction = shotParams.targetX < shotParams.opponentX ? "left" : "right";
+      const runDirection = shotParams.opponentVx >= 0 ? "right" : "left";
+      const shotType = Math.abs(shotParams.targetX) > 3.0 ? "Wide winner attempt" : "Deep pressure shot";
+      document.getElementById("decisionTitle").textContent = shotType;
+      document.getElementById("decisionReason").textContent =
+        `Opponent is moving ${runDirection}; WinnerMind sends the ball ${direction} toward x=${shotParams.targetX.toFixed(1)}, z=${shotParams.targetZ.toFixed(1)}. ` +
+        `Distance from opponent: ${shotParams.opponentDistance.toFixed(1)}m. Fitness: ${shotParams.fitness}.`;
     }
 
     await loadTrainedShot();
