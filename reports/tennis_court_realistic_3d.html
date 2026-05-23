@@ -458,11 +458,15 @@
       canvas.width = 512;
       canvas.height = 256;
       const ctx = canvas.getContext("2d");
-      ctx.fillStyle = "#dfff24";
+      ctx.fillStyle = "#9eea19";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       for (let i = 0; i < 7000; i++) {
-        ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.16})`;
+        ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.09})`;
         ctx.fillRect(Math.random() * 512, Math.random() * 256, 1, 1);
+      }
+      for (let i = 0; i < 1800; i++) {
+        ctx.fillStyle = `rgba(38,64,18,${Math.random() * 0.13})`;
+        ctx.fillRect(Math.random() * 512, Math.random() * 256, 1.4, 1.4);
       }
       ctx.strokeStyle = "rgba(255,255,255,0.9)";
       ctx.lineWidth = 9;
@@ -472,6 +476,22 @@
       ctx.beginPath();
       ctx.arc(407, 128, 88, Math.PI - 1.25, Math.PI + 1.25);
       ctx.stroke();
+      ctx.strokeStyle = "rgba(8,18,10,0.88)";
+      ctx.lineWidth = 7;
+      ctx.beginPath();
+      ctx.moveTo(236, 86);
+      ctx.quadraticCurveTo(260, 70, 284, 86);
+      ctx.quadraticCurveTo(260, 102, 236, 86);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(236, 168);
+      ctx.quadraticCurveTo(260, 152, 284, 168);
+      ctx.quadraticCurveTo(260, 184, 236, 168);
+      ctx.stroke();
+      ctx.fillStyle = "rgba(8,18,10,0.9)";
+      ctx.font = "bold 38px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText("WM", 260, 141);
       const texture = new THREE.CanvasTexture(canvas);
       texture.colorSpace = THREE.SRGBColorSpace;
       return texture;
@@ -482,8 +502,8 @@
       new THREE.MeshStandardMaterial({
         map: makeBallTexture(),
         roughness: 0.86,
-        emissive: 0x748000,
-        emissiveIntensity: 0.08
+        emissive: 0x2f5500,
+        emissiveIntensity: 0.03
       })
     );
     ball.castShadow = true;
@@ -582,8 +602,8 @@
       const activeSpin = t < 0.46 ? shotParams.incomingSpin : shotParams.spin;
       const activePower = t < 0.46 ? shotParams.incomingSpeed / 40 : shotParams.power;
       const spinDirection = activeSpin >= 0 ? 1 : -1;
-      ball.rotation.x += dt * spinDirection * (10 + activePower * 12 + Math.abs(activeSpin) * 10);
-      ball.rotation.z += dt * (4 + shotParams.power * 8);
+      ball.rotation.x += dt * spinDirection * (18 + activePower * 20 + Math.abs(activeSpin) * 16);
+      ball.rotation.z += dt * (8 + shotParams.power * 13);
 
       ballShadow.position.x = pos.x;
       ballShadow.position.z = pos.z;
