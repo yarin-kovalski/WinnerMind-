@@ -120,14 +120,28 @@ def launch() -> None:
         height: 100%;
         min-width: 8px;
         border-radius: 999px;
-        background: linear-gradient(90deg, #19c37d, #b7ff3c);
+        background:
+            repeating-linear-gradient(
+                45deg,
+                rgba(255,255,255,0.18) 0,
+                rgba(255,255,255,0.18) 10px,
+                rgba(255,255,255,0.02) 10px,
+                rgba(255,255,255,0.02) 20px
+            ),
+            linear-gradient(90deg, #19c37d, #b7ff3c);
+        background-size: 34px 34px, auto;
         box-shadow: 0 0 20px rgba(25, 195, 125, 0.5);
         transition: width 260ms ease;
+        animation: wm-stripes 900ms linear infinite;
     }
     .wm-progress-stats {
         margin-top: 8px;
         color: #9eeeb8;
         font-size: 13px;
+    }
+    @keyframes wm-stripes {
+        from { background-position: 0 0, 0 0; }
+        to { background-position: 34px 0, 0 0; }
     }
     .gradio-container [class*="progress"],
     .gradio-container [class*="progress"] *,

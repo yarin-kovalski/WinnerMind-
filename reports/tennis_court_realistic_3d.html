@@ -425,6 +425,7 @@
     }
 
     function positionOpponentImage() {
+      camera.updateMatrixWorld();
       const projected = opponentAnchor.clone().project(camera);
       const left = (projected.x * 0.5 + 0.5) * window.innerWidth;
       const top = (-projected.y * 0.5 + 0.5) * window.innerHeight;
