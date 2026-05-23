@@ -2,7 +2,7 @@
 
 ## Final Project
 
-**AceMind Tennis Shot Strategy AI**
+**WinnerMind Tennis Shot Strategy AI**
 
 We train a Keras neural network using a genetic algorithm. The neural network learns to choose tennis shot parameters for different tactical situations.
 
@@ -63,7 +63,7 @@ A shot is bad if:
 
 Training outputs:
 
-- `models/acemind_best.weights.h5`
+- `models/winnermind_best.weights.h5`
 - `reports/training_history.csv`
 - `reports/fitness.png`
 - `reports/best_shot.json`

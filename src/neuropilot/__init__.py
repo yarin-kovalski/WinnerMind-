@@ -1,1 +1,1 @@
-"""AceMind: evolve a Keras neural network for tennis shot strategy."""
+"""WinnerMind: evolve a Keras neural network for tennis shot strategy."""

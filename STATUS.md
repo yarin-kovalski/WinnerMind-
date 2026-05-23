@@ -4,7 +4,7 @@
 
 Final project direction is locked:
 
-**AceMind Tennis Shot Strategy AI**
+**WinnerMind Tennis Shot Strategy AI**
 
 This implements Assignment 3, Exercise 3 using **option 2: Genetic Algorithm**.
 
@@ -26,17 +26,20 @@ The program trains a Keras neural network to choose tennis shot parameters. The 
   - mutation
   - multiple generations
 - Training exports:
-  - `models/acemind_best.weights.h5`
+  - `models/winnermind_best.weights.h5`
   - `reports/training_history.csv`
   - `reports/fitness.png`
   - `reports/best_shot.json`
+  - `reports/best_shot.js`
 - Built final visualization:
   - `reports/tennis_court_realistic_3d.html`
-- The 3D visualization reads `reports/best_shot.json` when available.
+- The 3D visualization reads `reports/best_shot.js` when opened with `file:///...`, and `reports/best_shot.json` when served from a local server.
 - Added a sample `reports/best_shot.json` so the visualization works immediately; training overwrites it with real model output.
 - Removed old experimental preview files to keep the project focused.
 - Verified Python source syntax with `python -m compileall src`.
-- Verified the final 3D HTML page is served at:
+- Verified the final 3D HTML page can be opened directly at:
+  - `file:///C:/Users/ASUS-H170M/Desktop/from_idea/exercsie3/reports/tennis_court_realistic_3d.html`
+- Optional local server path, only if needed:
   - `http://localhost:8000/reports/tennis_court_realistic_3d.html`
 
 ## Assignment Requirements Tracked
@@ -59,6 +62,9 @@ The neural network receives:
 
 - incoming ball x position
 - incoming ball z position
+- incoming ball height
+- incoming ball speed
+- incoming ball spin
 - opponent x position
 - opponent z position
 - aggression level
@@ -67,7 +73,10 @@ The neural network outputs:
 
 - power
 - launch angle
-- topspin
+- arc height
+- signed spin:
+  - positive = topspin
+  - negative = slice/backspin
 - target x
 - target z
 
@@ -88,12 +97,12 @@ Inspect the generated training outputs:
 - `reports/fitness.png`
 - `reports/training_history.csv`
 - `reports/best_shot.json`
-- `models/acemind_best.weights.h5`
+- `models/winnermind_best.weights.h5`
 
 Then open the 3D visualization:
 
 ```text
-http://localhost:8000/reports/tennis_court_realistic_3d.html
+file:///C:/Users/ASUS-H170M/Desktop/from_idea/exercsie3/reports/tennis_court_realistic_3d.html
 ```
 
 ## Progress Log
@@ -114,7 +123,7 @@ http://localhost:8000/reports/tennis_court_realistic_3d.html
 - Verified Python source syntax with the venv Python.
 - Added opponent handedness as a proposed next feature in `ROADMAP.md`.
 - Step 3 verification completed:
-  - Keras model input shape: `(None, 5)`
+  - Keras model input shape: `(None, 8)`
   - Keras model output shape: `(None, 6)`
   - One simulated shot produced valid trajectory and fitness data.
   - Tiny 2-generation genetic training run completed.
@@ -133,17 +142,18 @@ http://localhost:8000/reports/tennis_court_realistic_3d.html
 - Updated training so `reports/fitness.png`, `reports/training_history.csv`, and `reports/best_shot.json` refresh after every generation, matching the assignment request for a chart updated during training.
 - Full training completed through generation 40.
 - Training generated:
-  - `models/acemind_best.weights.h5`
+  - `models/winnermind_best.weights.h5`
   - `reports/training_history.csv`
   - `reports/fitness.png`
   - `reports/best_shot.json`
 - Best generation result reached best fitness around `722.87`.
 - Latest `best_shot.json` contains a valid in-court shot that clears the net.
+- Added `reports/best_shot.js` so the trained WinnerMind shot loads correctly when the HTML is opened directly from the file system.
 
 ## Suggested Next Commit
 
 ```text
-feat: train acemind shot strategy model
+feat: connect winnermind shot data to file preview
 ```
 
 ## Proposed Next Feature Commit

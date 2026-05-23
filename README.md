@@ -1,10 +1,10 @@
-# AceMind Tennis Shot Strategy AI
+# WinnerMind Tennis Shot Strategy AI
 
 Exercise 3 implementation for Assignment 3: training a Keras neural network with a genetic algorithm.
 
 ## Idea
 
-AceMind learns tennis shot strategy in simulation. The model receives a game situation and outputs:
+WinnerMind learns tennis shot strategy in simulation. The model receives a game situation and outputs:
 
 - power
 - launch angle
@@ -31,10 +31,11 @@ python -m neuropilot.train
 
 Outputs:
 
-- `models/acemind_best.weights.h5`
+- `models/winnermind_best.weights.h5`
 - `reports/training_history.csv`
 - `reports/fitness.png`
 - `reports/best_shot.json`
+- `reports/best_shot.js`
 
 ## Show Best Shot Data
 
@@ -56,7 +57,7 @@ Open:
 http://localhost:8000/reports/tennis_court_realistic_3d.html
 ```
 
-The animation reads `reports/best_shot.json` when it exists. If you open it before training, it uses preview values.
+The animation reads `reports/best_shot.js` when opened directly from `file:///...`, and falls back to `reports/best_shot.json` when served from a local server. If you open it before training, it uses preview values.
 
 ## Video Checklist
 
@@ -65,6 +66,6 @@ The animation reads `reports/best_shot.json` when it exists. If you open it befo
 - Run training.
 - Show generations improving.
 - Show `reports/fitness.png`.
-- Show `models/acemind_best.weights.h5`.
+- Show `models/winnermind_best.weights.h5`.
 - Show `reports/best_shot.json`.
 - Show the 3D court animation using the trained shot parameters.

@@ -1,4 +1,4 @@
-"""Read the best trained AceMind shot data."""
+"""Read the best trained WinnerMind shot data."""
 
 from __future__ import annotations
 

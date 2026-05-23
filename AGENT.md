@@ -4,9 +4,9 @@
 
 This project implements Exercise 3 from Assignment 3: a Python program that trains a neural network using Keras.
 
-Final idea: **AceMind Tennis Shot Strategy AI**.
+Final idea: **WinnerMind Tennis Shot Strategy AI**.
 
-AceMind trains a Keras neural network with a genetic algorithm. The model receives a tennis game situation and outputs shot parameters:
+WinnerMind trains a Keras neural network with a genetic algorithm. The model receives a tennis game situation and outputs shot parameters:
 
 - shot power
 - launch angle
@@ -67,7 +67,7 @@ Penalty:
 ## Definition Of Done
 
 - `python -m neuropilot.train` trains multiple generations.
-- `models/acemind_best.weights.h5` is saved.
+- `models/winnermind_best.weights.h5` is saved.
 - `reports/training_history.csv` is saved.
 - `reports/fitness.png` is saved.
 - `reports/best_shot.json` is saved.

@@ -1,4 +1,4 @@
-"""Optional Gradio launcher for AceMind training artifacts."""
+"""Optional Gradio launcher for WinnerMind training artifacts."""
 
 from __future__ import annotations
 
@@ -19,8 +19,8 @@ def launch() -> None:
             str(REPORTS_DIR / "best_shot.json"),
         )
 
-    with gr.Blocks(title="AceMind Tennis Shot Strategy AI") as app:
-        gr.Markdown("# AceMind Tennis Shot Strategy AI")
+    with gr.Blocks(title="WinnerMind Tennis Shot Strategy AI") as app:
+        gr.Markdown("# WinnerMind Tennis Shot Strategy AI")
         gr.Markdown("Train a Keras model with a genetic algorithm, then open the 3D court visualization.")
         train_button = gr.Button("Train")
         train_text = gr.Textbox(label="Training status")

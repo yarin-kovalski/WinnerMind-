@@ -1,4 +1,4 @@
-"""Shared configuration for AceMind Tennis Shot Strategy AI."""
+"""Shared configuration for WinnerMind Tennis Shot Strategy AI."""
 
 from dataclasses import dataclass
 from pathlib import Path

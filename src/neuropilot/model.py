@@ -1,4 +1,4 @@
-"""Keras model factory for AceMind Tennis Shot Strategy AI."""
+"""Keras model factory for WinnerMind Tennis Shot Strategy AI."""
 
 from __future__ import annotations
 

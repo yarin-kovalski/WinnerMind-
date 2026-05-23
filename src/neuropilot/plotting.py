@@ -1,4 +1,4 @@
-"""Plotting helpers for AceMind training."""
+"""Plotting helpers for WinnerMind training."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ def save_fitness_chart(best_fitness: list[float], average_fitness: list[float], 
     plt.plot(average_fitness, label="Average fitness", linewidth=2)
     plt.xlabel("Generation")
     plt.ylabel("Fitness")
-    plt.title("AceMind Genetic Training Progress")
+    plt.title("WinnerMind Genetic Training Progress")
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()

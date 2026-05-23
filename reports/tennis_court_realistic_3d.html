@@ -61,7 +61,7 @@
 </head>
 <body>
   <aside class="params">
-    <h1>AceMind Shot</h1>
+    <h1>WinnerMind Shot</h1>
     <div class="row"><span>Power</span><strong id="power">92%</strong></div>
     <div class="row"><span>Launch</span><strong id="launch">18 deg</strong></div>
     <div class="row"><span>Arc height</span><strong id="arc">2.35m</strong></div>
@@ -70,6 +70,7 @@
     <div class="row"><span>Target</span><strong id="target">Wide</strong></div>
     <div class="row"><span>Fitness</span><strong id="fitness">968</strong></div>
   </aside>
+  <script src="best_shot.js"></script>
   <script type="importmap">
     {
       "imports": {
@@ -111,28 +112,36 @@
     };
 
     async function loadTrainedShot() {
+      if (window.WINNERMIND_BEST_SHOT) {
+        applyTrainedShot(window.WINNERMIND_BEST_SHOT);
+        return;
+      }
+
       try {
         const response = await fetch("best_shot.json", { cache: "no-store" });
         if (!response.ok) return;
-        const trained = await response.json();
-        shotParams = {
-          ...shotParams,
-          power: Number(trained.power ?? shotParams.power),
-          launchAngleDeg: Number(trained.launchAngleDeg ?? shotParams.launchAngleDeg),
-          arcHeight: Number(trained.arcHeight ?? shotParams.arcHeight),
-          spin: Number(trained.spin ?? trained.topspin ?? shotParams.spin),
-          targetX: Number(trained.targetX ?? shotParams.targetX),
-          targetZ: Number(trained.targetZ ?? shotParams.targetZ),
-          fitness: Number(trained.fitness ?? shotParams.fitness),
-          incomingX: Number(trained.incomingX ?? shotParams.incomingX),
-          incomingZ: Number(trained.incomingZ ?? shotParams.incomingZ),
-          incomingHeight: Number(trained.incomingHeight ?? shotParams.incomingHeight),
-          incomingSpeed: Number(trained.incomingSpeed ?? shotParams.incomingSpeed),
-          incomingSpin: Number(trained.incomingSpin ?? shotParams.incomingSpin)
-        };
+        applyTrainedShot(await response.json());
       } catch {
         // Keep preview defaults when opened before training or without a local server.
       }
+    }
+
+    function applyTrainedShot(trained) {
+      shotParams = {
+        ...shotParams,
+        power: Number(trained.power ?? shotParams.power),
+        launchAngleDeg: Number(trained.launchAngleDeg ?? shotParams.launchAngleDeg),
+        arcHeight: Number(trained.arcHeight ?? shotParams.arcHeight),
+        spin: Number(trained.spin ?? trained.topspin ?? shotParams.spin),
+        targetX: Number(trained.targetX ?? shotParams.targetX),
+        targetZ: Number(trained.targetZ ?? shotParams.targetZ),
+        fitness: Number(trained.fitness ?? shotParams.fitness),
+        incomingX: Number(trained.incomingX ?? shotParams.incomingX),
+        incomingZ: Number(trained.incomingZ ?? shotParams.incomingZ),
+        incomingHeight: Number(trained.incomingHeight ?? shotParams.incomingHeight),
+        incomingSpeed: Number(trained.incomingSpeed ?? shotParams.incomingSpeed),
+        incomingSpin: Number(trained.incomingSpin ?? shotParams.incomingSpin)
+      };
     }
 
     await loadTrainedShot();

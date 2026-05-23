@@ -1,4 +1,4 @@
-"""Tennis shot simulation and fitness scoring for AceMind."""
+"""Tennis shot simulation and fitness scoring for WinnerMind."""
 
 from __future__ import annotations
 

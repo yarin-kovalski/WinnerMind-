@@ -1,4 +1,4 @@
-"""Genetic algorithm trainer for AceMind Tennis Shot Strategy AI."""
+"""Genetic algorithm trainer for WinnerMind Tennis Shot Strategy AI."""
 
 from __future__ import annotations
 
@@ -70,12 +70,17 @@ def write_history(rows: list[dict[str, float | int]], history_path: Path) -> Non
 
 def write_best_shot(result: ShotResult, output_path: Path) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(result.to_visualization_dict(), indent=2), encoding="utf-8")
+    shot_json = json.dumps(result.to_visualization_dict(), indent=2)
+    output_path.write_text(shot_json, encoding="utf-8")
+    output_path.with_suffix(".js").write_text(
+        f"window.WINNERMIND_BEST_SHOT = {shot_json};\n",
+        encoding="utf-8",
+    )
 
 
 def train(
     config: GeneticConfig = GENETIC_CONFIG,
-    model_path: Path = MODELS_DIR / "acemind_best.weights.h5",
+    model_path: Path = MODELS_DIR / "winnermind_best.weights.h5",
     history_path: Path = REPORTS_DIR / "training_history.csv",
     best_shot_path: Path = REPORTS_DIR / "best_shot.json",
 ) -> EvaluatedIndividual:

@@ -4,7 +4,7 @@
 
 We have chosen the final project:
 
-**AceMind Tennis Shot Strategy AI**
+**WinnerMind Tennis Shot Strategy AI**
 
 This is Assignment 3, Exercise 3, option 2: **Genetic Algorithm**.
 
@@ -69,7 +69,7 @@ Status: done
 Commit name:
 
 ```text
-docs: finalize acemind shot strategy plan
+docs: finalize winnermind shot strategy plan
 ```
 
 ### Step 2 - Add explicit shot height feature
@@ -178,7 +178,7 @@ Status: done
 
 What was checked:
 
-- Keras model input shape is `(None, 5)`.
+- Keras model input shape is `(None, 8)`.
 - Keras model output shape is `(None, 6)`.
 - One simulated shot produced fitness and trajectory data.
 - A tiny 2-generation genetic training run completed.
@@ -187,7 +187,7 @@ What was checked:
 Commit name:
 
 ```text
-test: verify acemind training pipeline
+test: verify winnermind training pipeline
 ```
 
 ### Step 5 - Run full training
@@ -203,7 +203,7 @@ python -m neuropilot.train
 
 Expected outputs:
 
-- `models/acemind_best.weights.h5`
+- `models/winnermind_best.weights.h5`
 - `reports/training_history.csv`
 - `reports/fitness.png`
 - `reports/best_shot.json`
@@ -211,7 +211,7 @@ Expected outputs:
 Commit name:
 
 ```text
-feat: train acemind shot strategy model
+feat: train winnermind shot strategy model
 ```
 
 ### Step 6 - Check visualization
