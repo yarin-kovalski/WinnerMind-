@@ -360,48 +360,47 @@
 
     function incomingPosition(t) {
       const start = new THREE.Vector3(-2.8, 0.42, -8.7);
+      const bounce = new THREE.Vector3(shotParams.incomingX * 0.65, 0.08, 6.55);
       const contact = new THREE.Vector3(shotParams.incomingX, shotParams.incomingHeight, shotParams.incomingZ);
-      const arc = 1.0 + Math.abs(shotParams.incomingSpin) * 0.45 + shotParams.incomingSpeed / 55;
+      const firstArc = 1.0 + Math.abs(shotParams.incomingSpin) * 0.45 + shotParams.incomingSpeed / 55;
+      const postBounceArc = Math.max(0.45, shotParams.incomingHeight - 0.08);
+
+      if (t < 0.68) {
+        const u = t / 0.68;
+        return new THREE.Vector3(
+          THREE.MathUtils.lerp(start.x, bounce.x, u),
+          0.16 + Math.sin(u * Math.PI) * firstArc,
+          THREE.MathUtils.lerp(start.z, bounce.z, u)
+        );
+      }
+
+      const u = (t - 0.68) / 0.32;
       return new THREE.Vector3(
-        THREE.MathUtils.lerp(start.x, contact.x, t),
-        THREE.MathUtils.lerp(start.y, contact.y, t) + Math.sin(t * Math.PI) * arc,
-        THREE.MathUtils.lerp(start.z, contact.z, t)
+        THREE.MathUtils.lerp(bounce.x, contact.x, u),
+        0.08 + Math.sin(u * Math.PI * 0.5) * postBounceArc,
+        THREE.MathUtils.lerp(bounce.z, contact.z, u)
       );
     }
 
     function returnPosition(t) {
       const start = new THREE.Vector3(shotParams.incomingX, shotParams.incomingHeight, shotParams.incomingZ);
-      const preBounce = new THREE.Vector3(0.82, 0.08, 3.2);
       const end = new THREE.Vector3(shotParams.targetX, 0.08, shotParams.targetZ);
       const topspin = Math.max(0, shotParams.spin);
       const sliceSpin = Math.max(0, -shotParams.spin);
       const firstArcHeight = shotParams.arcHeight + shotParams.power * 0.45 + shotParams.launchAngleDeg / 55 + sliceSpin * 0.25 - topspin * 0.1;
-      const secondArcHeight = 0.65 + sliceSpin * 0.7 + (1 - topspin) * 0.25;
 
-      if (t < 0.58) {
-        const u = t / 0.58;
-        const arc = Math.sin(u * Math.PI) * firstArcHeight;
-        return new THREE.Vector3(
-          THREE.MathUtils.lerp(start.x, preBounce.x, u),
-          0.22 + arc,
-          THREE.MathUtils.lerp(start.z, preBounce.z, u)
-        );
-      }
-
-      const u = (t - 0.58) / 0.42;
-      const bounce = Math.sin(u * Math.PI) * secondArcHeight;
       return new THREE.Vector3(
-        THREE.MathUtils.lerp(preBounce.x, end.x, u),
-        0.17 + bounce,
-        THREE.MathUtils.lerp(preBounce.z, end.z, u)
+        THREE.MathUtils.lerp(start.x, end.x, t),
+        THREE.MathUtils.lerp(start.y, end.y, t) + Math.sin(t * Math.PI) * firstArcHeight,
+        THREE.MathUtils.lerp(start.z, end.z, t)
       );
     }
 
     function ballPosition(t) {
-      if (t < 0.38) {
-        return incomingPosition(t / 0.38);
+      if (t < 0.46) {
+        return incomingPosition(t / 0.46);
       }
-      return returnPosition((t - 0.38) / 0.62);
+      return returnPosition((t - 0.46) / 0.54);
     }
 
     let startedAt = performance.now();
@@ -418,8 +417,8 @@
       const t = Math.min(1, cycle / 0.92);
       const pos = ballPosition(t);
       ball.position.copy(pos);
-      const activeSpin = t < 0.38 ? shotParams.incomingSpin : shotParams.spin;
-      const activePower = t < 0.38 ? shotParams.incomingSpeed / 40 : shotParams.power;
+      const activeSpin = t < 0.46 ? shotParams.incomingSpin : shotParams.spin;
+      const activePower = t < 0.46 ? shotParams.incomingSpeed / 40 : shotParams.power;
       const spinDirection = activeSpin >= 0 ? 1 : -1;
       ball.rotation.x += dt * spinDirection * (10 + activePower * 12 + Math.abs(activeSpin) * 10);
       ball.rotation.z += dt * (4 + shotParams.power * 8);

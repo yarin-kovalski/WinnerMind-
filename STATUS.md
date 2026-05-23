@@ -130,11 +130,12 @@ http://localhost:8000/reports/tennis_court_realistic_3d.html
   - model now receives incoming height, speed, and spin
   - best-shot JSON exports incoming ball values
   - 3D animation shows the incoming ball first and then the AI return shot
+- Fixed the 3D animation timing so the incoming ball bounces once on our side and is returned immediately, instead of bouncing twice before the AI shot.
 
 ## Suggested Next Commit
 
 ```text
-feat: animate incoming ball before ai return
+fix: return incoming ball after first bounce
 ```
 
 ## Proposed Next Feature Commit
