@@ -7,7 +7,7 @@ from threading import Thread
 
 from neuropilot.config import REPORTS_DIR
 from neuropilot.demo import predict_random_shot
-from neuropilot.genetic_algorithm import train
+from neuropilot.genetic_algorithm import train, write_best_shot
 
 
 def launch() -> None:
@@ -80,6 +80,7 @@ def launch() -> None:
             result = predict_random_shot()
         except RuntimeError as error:
             return str(error), str(REPORTS_DIR / "best_shot.json")
+        write_best_shot(result, REPORTS_DIR / "best_shot.json")
         data = result.to_visualization_dict()
         summary = (
             f"Incoming ball: x={data['incomingX']}m, z={data['incomingZ']}m, "
