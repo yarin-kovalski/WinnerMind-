@@ -65,7 +65,7 @@
     <div class="row"><span>Power</span><strong id="power">92%</strong></div>
     <div class="row"><span>Launch</span><strong id="launch">18 deg</strong></div>
     <div class="row"><span>Arc height</span><strong id="arc">2.35m</strong></div>
-    <div class="row"><span>Topspin</span><strong id="spin">0.74</strong></div>
+    <div class="row"><span>Spin</span><strong id="spin">Topspin 0.74</strong></div>
     <div class="row"><span>Target</span><strong id="target">Wide</strong></div>
     <div class="row"><span>Fitness</span><strong id="fitness">968</strong></div>
   </aside>
@@ -98,7 +98,7 @@
       power: 0.92,
       launchAngleDeg: 18,
       arcHeight: 2.35,
-      topspin: 0.74,
+      spin: 0.74,
       targetX: -3.25,
       targetZ: -7.65,
       fitness: 968
@@ -114,7 +114,7 @@
           power: Number(trained.power ?? shotParams.power),
           launchAngleDeg: Number(trained.launchAngleDeg ?? shotParams.launchAngleDeg),
           arcHeight: Number(trained.arcHeight ?? shotParams.arcHeight),
-          topspin: Number(trained.topspin ?? shotParams.topspin),
+          spin: Number(trained.spin ?? trained.topspin ?? shotParams.spin),
           targetX: Number(trained.targetX ?? shotParams.targetX),
           targetZ: Number(trained.targetZ ?? shotParams.targetZ),
           fitness: Number(trained.fitness ?? shotParams.fitness)
@@ -129,7 +129,7 @@
     document.getElementById("power").textContent = `${Math.round(shotParams.power * 100)}%`;
     document.getElementById("launch").textContent = `${shotParams.launchAngleDeg} deg`;
     document.getElementById("arc").textContent = `${shotParams.arcHeight.toFixed(2)}m`;
-    document.getElementById("spin").textContent = shotParams.topspin.toFixed(2);
+    document.getElementById("spin").textContent = `${shotParams.spin >= 0 ? "Topspin" : "Slice"} ${Math.abs(shotParams.spin).toFixed(2)}`;
     document.getElementById("target").textContent = shotParams.targetX < 0 ? "Wide left" : "Wide right";
     document.getElementById("fitness").textContent = String(shotParams.fitness);
 
@@ -200,7 +200,7 @@
       metalness: 0.05
     });
 
-    const outer = new THREE.Mesh(new THREE.PlaneGeometry(54, 40), outerMat);
+    const outer = new THREE.Mesh(new THREE.PlaneGeometry(20.11, 40.23), outerMat);
     outer.rotation.x = -Math.PI / 2;
     outer.receiveShadow = true;
     scene.add(outer);
@@ -350,8 +350,10 @@
       const start = new THREE.Vector3(2.7, 0.32, 8.9);
       const preBounce = new THREE.Vector3(0.82, 0.08, 3.2);
       const end = new THREE.Vector3(shotParams.targetX, 0.08, shotParams.targetZ);
-      const firstArcHeight = shotParams.arcHeight + shotParams.power * 0.45 + shotParams.launchAngleDeg / 55;
-      const secondArcHeight = 0.7 + (1 - shotParams.topspin) * 0.7;
+      const topspin = Math.max(0, shotParams.spin);
+      const sliceSpin = Math.max(0, -shotParams.spin);
+      const firstArcHeight = shotParams.arcHeight + shotParams.power * 0.45 + shotParams.launchAngleDeg / 55 + sliceSpin * 0.25 - topspin * 0.1;
+      const secondArcHeight = 0.65 + sliceSpin * 0.7 + (1 - topspin) * 0.25;
 
       if (t < 0.58) {
         const u = t / 0.58;
@@ -386,8 +388,9 @@
       const t = Math.min(1, cycle / 0.92);
       const pos = shotPosition(t);
       ball.position.copy(pos);
-      ball.rotation.x += dt * (10 + shotParams.power * 12);
-      ball.rotation.z += dt * (8 + shotParams.topspin * 18);
+      const spinDirection = shotParams.spin >= 0 ? 1 : -1;
+      ball.rotation.x += dt * spinDirection * (10 + shotParams.power * 12 + Math.abs(shotParams.spin) * 10);
+      ball.rotation.z += dt * (4 + shotParams.power * 8);
 
       ballShadow.position.x = pos.x;
       ballShadow.position.z = pos.z;

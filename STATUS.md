@@ -120,11 +120,17 @@ http://localhost:8000/reports/tennis_court_realistic_3d.html
   - One simulated shot produced valid trajectory and fitness data.
   - Tiny 2-generation genetic training run completed.
   - Tiny run verified weights, history CSV, and best-shot JSON export.
+- Added realistic court bounds and spin behavior:
+  - run-off margins in config
+  - net center/post heights
+  - signed spin where positive means topspin and negative means slice/backspin
+  - 3D ball rotation now changes direction based on spin
+  - 3D outer court dimensions now match recommended run-off footprint more closely
 
 ## Suggested Next Commit
 
 ```text
-test: verify acemind training pipeline
+feat: add realistic court bounds and spin behavior
 ```
 
 ## Proposed Next Feature Commit

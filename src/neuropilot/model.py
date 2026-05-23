@@ -20,7 +20,7 @@ def build_pilot_model() -> Sequential:
     - power
     - launch angle
     - arc height
-    - topspin
+    - signed spin: negative means slice/backspin, positive means topspin
     - target x
     - target z
     """

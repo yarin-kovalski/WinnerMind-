@@ -42,7 +42,7 @@ class ShotParameters:
     power: float
     launch_angle_deg: float
     arc_height: float
-    topspin: float
+    spin: float
     target_x: float
     target_z: float
 
@@ -65,7 +65,7 @@ class ShotResult:
             "power": round(self.parameters.power, 3),
             "launchAngleDeg": round(self.parameters.launch_angle_deg, 2),
             "arcHeight": round(self.parameters.arc_height, 3),
-            "topspin": round(self.parameters.topspin, 3),
+            "spin": round(self.parameters.spin, 3),
             "targetX": round(self.parameters.target_x, 3),
             "targetZ": round(self.parameters.target_z, 3),
             "fitness": round(self.fitness, 2),
@@ -84,16 +84,24 @@ def decode_outputs(outputs: np.ndarray, config: CourtConfig = COURT_CONFIG) -> S
     power = config.min_power + power01 * (config.max_power - config.min_power)
     launch = config.min_launch_angle + launch01 * (config.max_launch_angle - config.min_launch_angle)
     arc_height = 0.8 + arc01 * 2.6
+    spin = spin01 * 2.0 - 1.0
     target_x = -half_width + target_x01 * config.singles_width
     target_z = -half_length + 1.0 + target_z01 * (half_length - 1.6)
     return ShotParameters(
         power=power,
         launch_angle_deg=launch,
         arc_height=arc_height,
-        topspin=spin01,
+        spin=spin,
         target_x=target_x,
         target_z=target_z,
     )
+
+
+def net_height_at_x(x: float, config: CourtConfig = COURT_CONFIG) -> float:
+    """Approximate the tennis net height at a horizontal crossing position."""
+    half_net_width = config.doubles_width / 2 + 0.914
+    ratio = min(1.0, abs(x) / half_net_width)
+    return config.net_center_height + ratio * (config.net_post_height - config.net_center_height)
 
 
 def simulate_shot(
@@ -113,18 +121,21 @@ def simulate_shot(
     launch_factor = (params.launch_angle_deg - config.min_launch_angle) / (
         config.max_launch_angle - config.min_launch_angle
     )
-    arc_height = params.arc_height + launch_factor * 0.45 + params.power * 0.35 - params.topspin * 0.25
+    topspin = max(0.0, params.spin)
+    slice_spin = max(0.0, -params.spin)
+    arc_height = params.arc_height + launch_factor * 0.45 + params.power * 0.35 - topspin * 0.25 + slice_spin * 0.18
     arc_height = max(0.45, arc_height)
 
     trajectory: list[tuple[float, float, float]] = []
     net_y = -999.0
+    net_crossing_x = 0.0
     previous_x = start_x
     previous_y = config.contact_height
     previous_z = start_z
 
     for index in range(steps + 1):
         t = index / steps
-        curve = (t * (1 - t)) * (params.topspin - 0.5) * 1.2
+        curve = (t * (1 - t)) * params.spin * 0.75
         x = start_x + (end_x - start_x) * t + curve
         z = start_z + (end_z - start_z) * t
         y = config.contact_height * (1 - t) + 0.08 * t + sin(pi * t) * arc_height
@@ -132,18 +143,24 @@ def simulate_shot(
 
         if (previous_z >= 0 >= z) or (previous_z <= 0 <= z):
             ratio = abs(previous_z) / max(0.0001, abs(previous_z - z))
+            net_crossing_x = previous_x + ratio * (x - previous_x)
             net_y = previous_y + ratio * (y - previous_y)
 
         previous_x, previous_y, previous_z = x, y, z
 
-    cleared_net = net_y > config.net_height + 0.08
+    net_required_height = net_height_at_x(net_crossing_x, config)
+    cleared_net = net_y > net_required_height + 0.08
     in_court = -half_width <= end_x <= half_width and -half_length <= end_z <= 0
     target_error = float(np.hypot(end_x - scenario.desired_target_x, end_z - scenario.desired_target_z))
     opponent_distance = float(np.hypot(end_x - scenario.opponent_x, end_z - scenario.opponent_z))
 
     fitness = 150.0
     fitness += params.power * 95.0 * scenario.aggression
-    fitness += params.topspin * 35.0
+    fitness += abs(params.spin) * 20.0
+    if params.spin > 0:
+        fitness += params.spin * 18.0 * scenario.aggression
+    else:
+        fitness += abs(params.spin) * 10.0 * (1.0 - scenario.aggression)
     fitness += max(0.0, 2.4 - abs(params.arc_height - 2.2)) * 18.0
     fitness += min(opponent_distance, 8.0) * (18.0 + scenario.aggression * 12.0)
     fitness -= target_error * 42.0
@@ -151,12 +168,12 @@ def simulate_shot(
 
     if cleared_net:
         fitness += 160.0
-        if net_y < config.net_height + 0.35:
-            fitness -= (config.net_height + 0.35 - net_y) * 75.0
-        elif net_y > config.net_height + 2.2:
-            fitness -= (net_y - config.net_height - 2.2) * 35.0
+        if net_y < net_required_height + 0.35:
+            fitness -= (net_required_height + 0.35 - net_y) * 75.0
+        elif net_y > net_required_height + 2.2:
+            fitness -= (net_y - net_required_height - 2.2) * 35.0
     else:
-        fitness -= 260.0 + (config.net_height - net_y) * 80.0
+        fitness -= 260.0 + (net_required_height - net_y) * 80.0
 
     if in_court:
         fitness += 180.0

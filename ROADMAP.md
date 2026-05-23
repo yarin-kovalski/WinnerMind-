@@ -136,6 +136,26 @@ Commit name:
 feat: add opponent handedness to shot strategy
 ```
 
+### Step 3A - Add realistic court bounds and spin behavior
+
+Status: done
+
+What changed:
+
+- Added official-style run-off margins to config for visualization.
+- The red/orange margin is treated as out-of-play; only the court rectangle can score as in.
+- Added center/post net heights.
+- Added signed spin:
+  - positive = topspin
+  - negative = slice/backspin
+- Fitness now accounts for spin style and net clearance more accurately.
+
+Commit name:
+
+```text
+feat: add realistic court bounds and spin behavior
+```
+
 ### Step 4 - Verify training pipeline
 
 Status: done

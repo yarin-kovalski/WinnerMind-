@@ -3,7 +3,7 @@
   "power": 0.92,
   "launchAngleDeg": 18,
   "arcHeight": 2.35,
-  "topspin": 0.74,
+  "spin": 0.74,
   "targetX": -3.25,
   "targetZ": -7.65,
   "fitness": 968,

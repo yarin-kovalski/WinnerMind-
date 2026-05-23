@@ -14,7 +14,10 @@ class CourtConfig:
     court_length: float = 23.77
     doubles_width: float = 10.97
     singles_width: float = 8.23
-    net_height: float = 0.914
+    run_back: float = 8.23
+    side_run: float = 4.57
+    net_center_height: float = 0.914
+    net_post_height: float = 1.07
     contact_height: float = 0.85
     min_power: float = 0.45
     max_power: float = 1.0
