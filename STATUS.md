@@ -126,11 +126,15 @@ http://localhost:8000/reports/tennis_court_realistic_3d.html
   - signed spin where positive means topspin and negative means slice/backspin
   - 3D ball rotation now changes direction based on spin
   - 3D outer court dimensions now match recommended run-off footprint more closely
+- Added incoming ball situation:
+  - model now receives incoming height, speed, and spin
+  - best-shot JSON exports incoming ball values
+  - 3D animation shows the incoming ball first and then the AI return shot
 
 ## Suggested Next Commit
 
 ```text
-feat: add realistic court bounds and spin behavior
+feat: animate incoming ball before ai return
 ```
 
 ## Proposed Next Feature Commit

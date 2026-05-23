@@ -12,6 +12,9 @@ def build_pilot_model() -> Sequential:
     Inputs:
     - incoming ball x
     - incoming ball z
+    - incoming ball height
+    - incoming ball speed
+    - incoming ball spin
     - opponent x
     - opponent z
     - strategy aggression
@@ -26,7 +29,7 @@ def build_pilot_model() -> Sequential:
     """
     return Sequential(
         [
-            Input(shape=(5,)),
+            Input(shape=(8,)),
             Dense(32, activation="relu"),
             Dense(32, activation="relu"),
             Dense(6, activation="sigmoid"),

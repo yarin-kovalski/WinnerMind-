@@ -14,6 +14,9 @@ from neuropilot.config import COURT_CONFIG, CourtConfig
 class ShotScenario:
     incoming_x: float
     incoming_z: float
+    incoming_height: float
+    incoming_speed: float
+    incoming_spin: float
     opponent_x: float
     opponent_z: float
     desired_target_x: float
@@ -28,6 +31,9 @@ class ShotScenario:
                 [
                     (self.incoming_x + half_width) / config.singles_width,
                     self.incoming_z / half_length,
+                    self.incoming_height / 3.5,
+                    self.incoming_speed / 40.0,
+                    (self.incoming_spin + 1.0) / 2.0,
                     (self.opponent_x + half_width) / config.singles_width,
                     (-self.opponent_z) / half_length,
                     self.aggression,
@@ -73,6 +79,11 @@ class ShotResult:
             "inCourt": self.in_court,
             "targetError": round(self.target_error, 3),
             "opponentDistance": round(self.opponent_distance, 3),
+            "incomingX": round(self.scenario.incoming_x, 3),
+            "incomingZ": round(self.scenario.incoming_z, 3),
+            "incomingHeight": round(self.scenario.incoming_height, 3),
+            "incomingSpeed": round(self.scenario.incoming_speed, 3),
+            "incomingSpin": round(self.scenario.incoming_spin, 3),
             "trajectory": [[round(x, 3), round(y, 3), round(z, 3)] for x, y, z in self.trajectory],
         }
 
@@ -155,7 +166,9 @@ def simulate_shot(
     opponent_distance = float(np.hypot(end_x - scenario.opponent_x, end_z - scenario.opponent_z))
 
     fitness = 150.0
+    speed_match = 1.0 - min(1.0, abs(params.power - scenario.incoming_speed / 40.0))
     fitness += params.power * 95.0 * scenario.aggression
+    fitness += speed_match * 28.0
     fitness += abs(params.spin) * 20.0
     if params.spin > 0:
         fitness += params.spin * 18.0 * scenario.aggression
@@ -203,9 +216,9 @@ def standard_scenarios(config: CourtConfig = COURT_CONFIG) -> list[ShotScenario]
     """Training situations across target and opponent placements."""
     half_width = config.singles_width / 2
     return [
-        ShotScenario(1.9, 8.9, 1.8, -5.3, -half_width + 0.85, -8.2, 0.9),
-        ShotScenario(-1.4, 8.4, -1.6, -5.0, half_width - 0.9, -8.0, 0.85),
-        ShotScenario(0.5, 7.8, 2.2, -4.8, -2.9, -6.8, 0.65),
-        ShotScenario(-0.8, 8.2, 0.4, -6.0, 2.7, -7.6, 0.7),
-        ShotScenario(1.1, 8.7, -0.8, -5.4, -3.25, -7.65, 0.95),
+        ShotScenario(1.9, 8.9, 1.15, 31.0, 0.45, 1.8, -5.3, -half_width + 0.85, -8.2, 0.9),
+        ShotScenario(-1.4, 8.4, 1.35, 27.0, -0.35, -1.6, -5.0, half_width - 0.9, -8.0, 0.85),
+        ShotScenario(0.5, 7.8, 1.8, 22.0, 0.2, 2.2, -4.8, -2.9, -6.8, 0.65),
+        ShotScenario(-0.8, 8.2, 1.05, 25.0, -0.55, 0.4, -6.0, 2.7, -7.6, 0.7),
+        ShotScenario(1.1, 8.7, 1.25, 33.0, 0.65, -0.8, -5.4, -3.25, -7.65, 0.95),
     ]

@@ -156,6 +156,22 @@ Commit name:
 feat: add realistic court bounds and spin behavior
 ```
 
+### Step 3B - Add incoming ball situation
+
+Status: done
+
+What changed:
+
+- Added incoming ball height, speed, and spin to model inputs.
+- Exported incoming ball values to `best_shot.json`.
+- 3D animation now shows the incoming ball first, then the AI return shot.
+
+Commit name:
+
+```text
+feat: animate incoming ball before ai return
+```
+
 ### Step 4 - Verify training pipeline
 
 Status: done
