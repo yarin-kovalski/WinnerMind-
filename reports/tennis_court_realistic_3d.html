@@ -24,8 +24,8 @@
       height: auto;
       z-index: 2;
       pointer-events: none;
-      transform: translate(-50%, -88%);
-      transform-origin: 50% 88%;
+      transform: translate(-50%, -94%);
+      transform-origin: 50% 94%;
       filter: drop-shadow(18px 20px 12px rgba(0, 0, 0, 0.34));
       will-change: left, top, transform;
     }
@@ -369,18 +369,18 @@
       new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.22, depthWrite: false })
     );
     opponentShadow.rotation.x = -Math.PI / 2;
-    opponentShadow.position.set(shotParams.opponentX + 0.08, 0.066, shotParams.opponentZ + 0.28);
-    opponentShadow.scale.set(0.78, 0.42, 1.0);
+    opponentShadow.position.set(shotParams.opponentX, 0.066, shotParams.opponentZ + 0.08);
+    opponentShadow.scale.set(0.62, 0.34, 1.0);
     scene.add(opponentShadow);
 
     const runDirection = new THREE.Vector3(shotParams.opponentVx, 0, shotParams.opponentVz).normalize();
     const opponentArrow = new THREE.ArrowHelper(
       runDirection.lengthSq() > 0 ? runDirection : new THREE.Vector3(1, 0, 0),
-      new THREE.Vector3(shotParams.opponentX + 0.18, 0.105, shotParams.opponentZ + 0.2),
-      0.74,
+      new THREE.Vector3(shotParams.opponentX + 0.02, 0.095, shotParams.opponentZ + 0.1),
+      0.52,
       0x19c37d,
-      0.18,
-      0.11
+      0.13,
+      0.08
     );
     scene.add(opponentArrow);
 
@@ -403,7 +403,7 @@
 
     function updateSceneFromShot(resetAnimation = false) {
       opponentAnchor.set(shotParams.opponentX, 1.0, shotParams.opponentZ);
-      opponentShadow.position.set(shotParams.opponentX + 0.08, 0.066, shotParams.opponentZ + 0.28);
+      opponentShadow.position.set(shotParams.opponentX, 0.066, shotParams.opponentZ + 0.08);
       targetMarker.position.set(shotParams.targetX, 0.09, shotParams.targetZ);
 
       const nextDirection = new THREE.Vector3(shotParams.opponentVx, 0, shotParams.opponentVz);
@@ -412,9 +412,9 @@
       } else {
         nextDirection.normalize();
       }
-      opponentArrow.position.set(shotParams.opponentX + 0.18, 0.105, shotParams.opponentZ + 0.2);
+      opponentArrow.position.set(shotParams.opponentX + 0.02, 0.095, shotParams.opponentZ + 0.1);
       opponentArrow.setDirection(nextDirection);
-      opponentArrow.setLength(0.74, 0.18, 0.11);
+      opponentArrow.setLength(0.52, 0.13, 0.08);
 
       if (resetAnimation) {
         startedAt = performance.now();
@@ -432,7 +432,7 @@
       const scale = THREE.MathUtils.clamp(1.15 - projected.z * 0.24, 0.72, 1.2);
       opponentImg.style.left = `${left}px`;
       opponentImg.style.top = `${top}px`;
-      opponentImg.style.transform = `translate(-50%, -88%) scale(${scale})`;
+      opponentImg.style.transform = `translate(-50%, -94%) scale(${scale})`;
       opponentImg.style.display = projected.z > 1 ? "none" : "block";
     }
 
@@ -509,10 +509,20 @@
     }
 
     function incomingPosition(t) {
-      const start = new THREE.Vector3(-2.8, 0.42, -8.7);
-      const bounce = new THREE.Vector3(shotParams.incomingX * 0.65, 0.08, 6.55);
+      const startDirection = new THREE.Vector3(shotParams.opponentVx, 0, shotParams.opponentVz);
+      if (startDirection.lengthSq() < 0.001) {
+        startDirection.set(0, 0, 1);
+      } else {
+        startDirection.normalize();
+      }
+      const start = new THREE.Vector3(
+        shotParams.opponentX + startDirection.x * 0.55,
+        1.15,
+        shotParams.opponentZ + startDirection.z * 0.55
+      );
+      const bounce = new THREE.Vector3(shotParams.incomingX * 0.82, 0.08, 6.55);
       const contact = new THREE.Vector3(shotParams.incomingX, shotParams.incomingHeight, shotParams.incomingZ);
-      const firstArc = 1.0 + Math.abs(shotParams.incomingSpin) * 0.45 + shotParams.incomingSpeed / 55;
+      const firstArc = 0.85 + Math.abs(shotParams.incomingSpin) * 0.35 + shotParams.incomingSpeed / 68;
       const postBounceArc = Math.max(0.45, shotParams.incomingHeight - 0.08);
 
       if (t < 0.68) {
@@ -564,7 +574,7 @@
       const dt = (now - last) / 1000;
       last = now;
 
-      const cycleDuration = 5200 - shotParams.power * 1050;
+      const cycleDuration = 3600 - shotParams.power * 650;
       const cycle = ((now - startedAt) % cycleDuration) / cycleDuration;
       const t = Math.min(1, cycle / 0.92);
       const pos = ballPosition(t);
